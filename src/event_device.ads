@@ -28,7 +28,7 @@ package Event_Device is
       Time       : Duration   := 0.0;
    end record;
 
-   type Device_Info is record
+   type ID_Type is record
       Bus_Type, Vendor, Product, Version : Unsigned_16;
    end record;
 
@@ -38,7 +38,7 @@ package Event_Device is
 
    type Input_Device is tagged limited private;
 
-   function Device (Object : Input_Device) return Device_Info
+   function ID (Object : Input_Device) return ID_Type
      with Pre => Object.Is_Open;
 
    function Axis (Object : Input_Device) return Axis_Info

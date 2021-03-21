@@ -16,7 +16,7 @@ begin
    Ada.Text_IO.Put_Line ("file name:   '" & EF.File_Name & "'");
    Ada.Text_IO.Put_Line ("device name: '" & EF.Name & "'");
    declare
-      Info : Event_Device.Device_Info := EF.Device;
+      Info : Event_Device.ID_Type := EF.ID;
    begin
       Ada.Text_IO.Put_Line
         ("bus ven pro ver: " & Event_Device.Hex_Image (Info.Bus_Type) &

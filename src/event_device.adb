@@ -28,8 +28,8 @@ package body Event_Device is
       return Hex_Image (High) & Hex_Image (Low);
    end Hex_Image;
 
-   function Device (Object : Input_Device) return Device_Info is
-      Result : Device_Info;
+   function ID (Object : Input_Device) return ID_Type is
+      Result : ID_Type;
 
       use all type Event_Device.Input_Dev.Access_Mode;
 
@@ -37,7 +37,7 @@ package body Event_Device is
         (Object.FD, (Read, 'E', 2, Result'Size / System.Storage_Unit), Result'Address);
    begin
       return Result;
-   end Device;
+   end ID;
 
    function Axis (Object : Input_Device) return Axis_Info is
       Result : Axis_Info;
