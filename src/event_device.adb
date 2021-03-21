@@ -1,5 +1,7 @@
 with Interfaces.C.Strings;
 
+with System;
+
 with Ada.IO_Exceptions;
 with Ada.Unchecked_Conversion;
 with Ada.Streams.Stream_IO.C_Streams;
@@ -11,10 +13,29 @@ package body Event_Device is
    function FD (Object : Input_Device) return Integer is
      (C_Streams.ICS.fileno (C_Streams.C_Stream (Object.Event_File_Type)));
 
+   function Hex_Image (Value : Unsigned_8) return String is
+      use Ada.Streams;
+
+      Hex : constant array (Unsigned_8 range 0 .. 15) of Character := "0123456789abcdef";
+   begin
+      return Hex (Value / 16) & Hex (Value mod 16);
+   end Hex_Image;
+
+   function Hex_Image (Value : Unsigned_16) return String is
+      Low  : constant Unsigned_8 := Unsigned_8 (16#FF# and Value);
+      High : constant Unsigned_8 := Unsigned_8 (16#FF# and (Value / 256));
+   begin
+      return Hex_Image (High) & Hex_Image (Low);
+   end Hex_Image;
+
    function Device (Object : Input_Device) return Device_Info is
       Result : Device_Info;
+
+      use all type Event_Device.Input_Dev.Access_Mode;
+
+      Length : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD, (Read, 'E', 2, Result'Size / System.Storage_Unit), Result'Address);
    begin
-      --  FIXME Implement
       return Result;
    end Device;
 

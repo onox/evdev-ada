@@ -63,9 +63,6 @@ private package Event_Device.Input_Dev is
       Value : int;
    end record;
 
-   type U8 is mod 2 ** 8
-     with Size => 8;
-
    type Access_Mode is (None, Write, Read, Read_Write);
 
    for Access_Mode use
@@ -78,7 +75,7 @@ private package Event_Device.Input_Dev is
    type IOCTL_Command is record
       Mode         : Access_Mode;
       Letter       : Character;
-      Number, Size : U8;
+      Number, Size : Unsigned_8;
    end record;
 
    function IO_Control

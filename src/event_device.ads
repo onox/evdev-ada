@@ -8,8 +8,15 @@ package Event_Device is
    type Gyro_Unit is delta 2.0 ** (-10) range -(2.0 ** 21) .. +(2.0 ** 21 - 1.0);
    --  2097152 / 1024 = 2048
 
+   type Unsigned_8 is mod 2 ** 8
+     with Size => 8;
+
    type Unsigned_16 is mod 2 ** 16
      with Size => 16;
+
+   function Hex_Image (Value : Unsigned_8) return String;
+
+   function Hex_Image (Value : Unsigned_16) return String;
 
    type Position is record
       X, Y, Z    : Accel_Unit := 0.0;
@@ -31,13 +38,17 @@ package Event_Device is
 
    type Input_Device is tagged limited private;
 
-   function Device (Object : Input_Device) return Device_Info;
+   function Device (Object : Input_Device) return Device_Info
+     with Pre => Object.Is_Open;
 
-   function Axis (Object : Input_Device) return Axis_Info;
+   function Axis (Object : Input_Device) return Axis_Info
+     with Pre => Object.Is_Open;
 
-   function Name (Object : Input_Device) return String;
+   function Name (Object : Input_Device) return String
+     with Pre => Object.Is_Open;
 
-   function File_Name (Object : Input_Device) return String;
+   function File_Name (Object : Input_Device) return String
+     with Pre => Object.Is_Open;
 
    function Is_Open (Object : Input_Device) return Boolean;
 

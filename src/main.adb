@@ -15,6 +15,15 @@ begin
 
    Ada.Text_IO.Put_Line ("file name:   '" & EF.File_Name & "'");
    Ada.Text_IO.Put_Line ("device name: '" & EF.Name & "'");
+   declare
+      Info : Event_Device.Device_Info := EF.Device;
+   begin
+      Ada.Text_IO.Put_Line
+        ("bus ven pro ver: " & Event_Device.Hex_Image (Info.Bus_Type) &
+         " " & Event_Device.Hex_Image (Info.Vendor) &
+         " " & Event_Device.Hex_Image (Info.Product) &
+         " " & Event_Device.Hex_Image (Info.Version));
+   end;
    loop
       EF.Read (Item);
       declare
