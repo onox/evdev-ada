@@ -28,7 +28,7 @@ package Event_Device is
       Time       : Duration   := 0.0;
    end record;
 
-   type ID_Type is record
+   type Device_ID is record
       Bus_Type, Vendor, Product, Version : Unsigned_16;
    end record;
 
@@ -36,12 +36,28 @@ package Event_Device is
       Value, Minimum, Maximum, Fuzz, Flat, Resolution : Integer;
    end record;
 
+   type Device_Properties is record
+      Pointer          : Boolean := False;
+      Direct           : Boolean := False;
+      Button_Pad       : Boolean := False;
+      Semi_Multi_Touch : Boolean := False;
+      Top_Button_Pad   : Boolean := False;
+      Pointing_Stick   : Boolean := False;
+      Accelerometer    : Boolean := False;
+   end record;
+
    type Input_Device is tagged limited private;
 
-   function ID (Object : Input_Device) return ID_Type
+   function ID (Object : Input_Device) return Device_ID
      with Pre => Object.Is_Open;
 
-   function Axis (Object : Input_Device) return Axis_Info
+   function Location (Object : Input_Device) return String
+     with Pre => Object.Is_Open;
+
+   function Unique_ID (Object : Input_Device) return String
+     with Pre => Object.Is_Open;
+
+   function Properties (Object : Input_Device) return Device_Properties
      with Pre => Object.Is_Open;
 
    function Name (Object : Input_Device) return String
@@ -50,10 +66,13 @@ package Event_Device is
    function File_Name (Object : Input_Device) return String
      with Pre => Object.Is_Open;
 
-   function Is_Open (Object : Input_Device) return Boolean;
+   function Axis (Object : Input_Device) return Axis_Info
+     with Pre => Object.Is_Open;
 
    procedure Read (Object : Input_Device; Item : out Position)
      with Pre => Object.Is_Open;
+
+   function Is_Open (Object : Input_Device) return Boolean;
 
    procedure Open (Object : in out Input_Device; File_Name : String)
      with Pre  => not Object.Is_Open,
@@ -73,5 +92,16 @@ private
    end record;
 
    overriding procedure Finalize (Object : in out Input_Device);
+
+   for Device_Properties use record
+      Pointer          at 0 range 0 .. 0;
+      Direct           at 0 range 1 .. 1;
+      Button_Pad       at 0 range 2 .. 2;
+      Semi_Multi_Touch at 0 range 3 .. 3;
+      Top_Button_Pad   at 0 range 4 .. 4;
+      Pointing_Stick   at 0 range 5 .. 5;
+      Accelerometer    at 0 range 6 .. 6;
+   end record;
+   for Device_Properties'Size use 8;
 
 end Event_Device;

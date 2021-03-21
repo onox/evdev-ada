@@ -28,8 +28,8 @@ package body Event_Device is
       return Hex_Image (High) & Hex_Image (Low);
    end Hex_Image;
 
-   function ID (Object : Input_Device) return ID_Type is
-      Result : ID_Type;
+   function ID (Object : Input_Device) return Device_ID is
+      Result : Device_ID;
 
       use all type Event_Device.Input_Dev.Access_Mode;
 
@@ -38,6 +38,42 @@ package body Event_Device is
    begin
       return Result;
    end ID;
+
+   function Location (Object : Input_Device) return String is
+      Result : String (1 .. 128) := (others => ' ');
+
+      use all type Event_Device.Input_Dev.Access_Mode;
+
+      Length : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD, (Read, 'E', 7, Result'Length), Result'Address);
+   begin
+      pragma Assert (Length >= 0);
+      return Result (1 .. Length);
+   end Location;
+
+   function Unique_ID (Object : Input_Device) return String is
+      Result : String (1 .. 128) := (others => ' ');
+
+      use all type Event_Device.Input_Dev.Access_Mode;
+
+      Length : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD, (Read, 'E', 8, Result'Length), Result'Address);
+   begin
+      pragma Assert (Length >= 0);
+      return Result (1 .. Length);
+   end Unique_ID;
+
+   function Properties (Object : Input_Device) return Device_Properties is
+      Result : Device_Properties;
+
+      use all type Event_Device.Input_Dev.Access_Mode;
+
+      Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD, (Read, 'E', 9, Result'Size), Result'Address);
+   begin
+      pragma Assert (Error_Code /= -1);
+      return Result;
+   end Properties;
 
    function Axis (Object : Input_Device) return Axis_Info is
       Result : Axis_Info;

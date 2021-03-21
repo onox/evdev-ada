@@ -15,14 +15,25 @@ begin
 
    Ada.Text_IO.Put_Line ("file name:   '" & EF.File_Name & "'");
    Ada.Text_IO.Put_Line ("device name: '" & EF.Name & "'");
+   Ada.Text_IO.Put_Line ("location:    '" & EF.Location & "'");
+   Ada.Text_IO.Put_Line ("uniq ID:     '" & EF.Unique_ID & "'");
    declare
-      Info : Event_Device.ID_Type := EF.ID;
+      Info  : constant Event_Device.Device_ID := EF.ID;
+      Props : constant Event_Device.Device_Properties := EF.Properties;
    begin
       Ada.Text_IO.Put_Line
         ("bus ven pro ver: " & Event_Device.Hex_Image (Info.Bus_Type) &
          " " & Event_Device.Hex_Image (Info.Vendor) &
          " " & Event_Device.Hex_Image (Info.Product) &
          " " & Event_Device.Hex_Image (Info.Version));
+      Ada.Text_IO.Put_Line ("properties:");
+      Ada.Text_IO.Put_Line ("  pointer:        " & Props.Pointer'Image);
+      Ada.Text_IO.Put_Line ("  direct:         " & Props.Direct'Image);
+      Ada.Text_IO.Put_Line ("  button pad:     " & Props.Button_Pad'Image);
+      Ada.Text_IO.Put_Line ("  semi mt:        " & Props.Semi_Multi_Touch'Image);
+      Ada.Text_IO.Put_Line ("  top button pad: " & Props.Top_Button_Pad'Image);
+      Ada.Text_IO.Put_Line ("  pointing stick: " & Props.Pointing_Stick'Image);
+      Ada.Text_IO.Put_Line ("  accelerometer:  " & Props.Accelerometer'Image);
    end;
    loop
       EF.Read (Item);
