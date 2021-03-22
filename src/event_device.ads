@@ -46,6 +46,21 @@ package Event_Device is
       Accelerometer    : Boolean := False;
    end record;
 
+   type Device_Events is record
+      Synchronization : Boolean := False;
+      Keys            : Boolean := False;
+      Relative_Axes   : Boolean := False;
+      Absolute_Axes   : Boolean := False;
+      Miscellaneous   : Boolean := False;
+      Switches        : Boolean := False;
+      LEDs            : Boolean := False;
+      Sound           : Boolean := False;
+      Repeat          : Boolean := False;
+      Force_Feedback  : Boolean := False;
+      Power           : Boolean := False;
+      Feedback_Status : Boolean := False;
+   end record;
+
    type Input_Device is tagged limited private;
 
    function ID (Object : Input_Device) return Device_ID
@@ -58,6 +73,9 @@ package Event_Device is
      with Pre => Object.Is_Open;
 
    function Properties (Object : Input_Device) return Device_Properties
+     with Pre => Object.Is_Open;
+
+   function Events (Object : Input_Device) return Device_Events
      with Pre => Object.Is_Open;
 
    function Name (Object : Input_Device) return String
@@ -103,5 +121,21 @@ private
       Accelerometer    at 0 range 6 .. 6;
    end record;
    for Device_Properties'Size use 8;
+
+   for Device_Events use record
+      Synchronization at 0 range 0 .. 0;
+      Keys            at 0 range 1 .. 1;
+      Relative_Axes   at 0 range 2 .. 2;
+      Absolute_Axes   at 0 range 3 .. 3;
+      Miscellaneous   at 0 range 4 .. 4;
+      Switches        at 0 range 5 .. 5;
+      LEDs            at 0 range 17 .. 17;
+      Sound           at 0 range 18 .. 18;
+      Repeat          at 0 range 20 .. 20;
+      Force_Feedback  at 0 range 21 .. 21;
+      Power           at 0 range 22 .. 22;
+      Feedback_Status at 0 range 23 .. 23;
+   end record;
+   for Device_Events'Size use 32;
 
 end Event_Device;

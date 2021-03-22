@@ -34,7 +34,7 @@ package body Event_Device is
       use all type Event_Device.Input_Dev.Access_Mode;
 
       Length : constant Integer := Event_Device.Input_Dev.IO_Control
-        (Object.FD, (Read, 'E', 2, Result'Size / System.Storage_Unit), Result'Address);
+        (Object.FD, (Read, 'E', 16#02#, Result'Size / System.Storage_Unit), Result'Address);
    begin
       return Result;
    end ID;
@@ -45,7 +45,7 @@ package body Event_Device is
       use all type Event_Device.Input_Dev.Access_Mode;
 
       Length : constant Integer := Event_Device.Input_Dev.IO_Control
-        (Object.FD, (Read, 'E', 7, Result'Length), Result'Address);
+        (Object.FD, (Read, 'E', 16#07#, Result'Length), Result'Address);
    begin
       pragma Assert (Length >= 0);
       return Result (1 .. Length);
@@ -57,7 +57,7 @@ package body Event_Device is
       use all type Event_Device.Input_Dev.Access_Mode;
 
       Length : constant Integer := Event_Device.Input_Dev.IO_Control
-        (Object.FD, (Read, 'E', 8, Result'Length), Result'Address);
+        (Object.FD, (Read, 'E', 16#08#, Result'Length), Result'Address);
    begin
       pragma Assert (Length >= 0);
       return Result (1 .. Length);
@@ -69,11 +69,23 @@ package body Event_Device is
       use all type Event_Device.Input_Dev.Access_Mode;
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
-        (Object.FD, (Read, 'E', 9, Result'Size), Result'Address);
+        (Object.FD, (Read, 'E', 16#09#, Result'Size), Result'Address);
    begin
       pragma Assert (Error_Code /= -1);
       return Result;
    end Properties;
+
+   function Events (Object : Input_Device) return Device_Events is
+      Result : Device_Events;
+
+      use all type Event_Device.Input_Dev.Access_Mode;
+
+      Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD, (Read, 'E', 16#20#, Result'Size), Result'Address);
+   begin
+      pragma Assert (Error_Code /= -1);
+      return Result;
+   end Events;
 
    function Axis (Object : Input_Device) return Axis_Info is
       Result : Axis_Info;
@@ -88,7 +100,7 @@ package body Event_Device is
       use all type Event_Device.Input_Dev.Access_Mode;
 
       Length : constant Integer := Event_Device.Input_Dev.IO_Control
-        (Object.FD, (Read, 'E', 6, Result'Length), Result'Address);
+        (Object.FD, (Read, 'E', 16#06#, Result'Length), Result'Address);
    begin
       pragma Assert (Length >= 0);
       return Result (1 .. Length);
@@ -168,7 +180,7 @@ package body Event_Device is
                         null;
                   end case;
                end;
-            when Master_Clock =>
+            when Miscellaneous =>
                null;
             when others =>
                raise Program_Error with Event.Event'Image;

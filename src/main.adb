@@ -18,22 +18,38 @@ begin
    Ada.Text_IO.Put_Line ("location:    '" & EF.Location & "'");
    Ada.Text_IO.Put_Line ("uniq ID:     '" & EF.Unique_ID & "'");
    declare
-      Info  : constant Event_Device.Device_ID := EF.ID;
-      Props : constant Event_Device.Device_Properties := EF.Properties;
+      ID     : constant Event_Device.Device_ID := EF.ID;
+      Props  : constant Event_Device.Device_Properties := EF.Properties;
+      Events : constant Event_Device.Device_Events := EF.Events;
    begin
       Ada.Text_IO.Put_Line
-        ("bus ven pro ver: " & Event_Device.Hex_Image (Info.Bus_Type) &
-         " " & Event_Device.Hex_Image (Info.Vendor) &
-         " " & Event_Device.Hex_Image (Info.Product) &
-         " " & Event_Device.Hex_Image (Info.Version));
+        ("bus ven pro ver: " & Event_Device.Hex_Image (ID.Bus_Type) &
+         " " & Event_Device.Hex_Image (ID.Vendor) &
+         " " & Event_Device.Hex_Image (ID.Product) &
+         " " & Event_Device.Hex_Image (ID.Version));
+
       Ada.Text_IO.Put_Line ("properties:");
-      Ada.Text_IO.Put_Line ("  pointer:        " & Props.Pointer'Image);
-      Ada.Text_IO.Put_Line ("  direct:         " & Props.Direct'Image);
-      Ada.Text_IO.Put_Line ("  button pad:     " & Props.Button_Pad'Image);
-      Ada.Text_IO.Put_Line ("  semi mt:        " & Props.Semi_Multi_Touch'Image);
-      Ada.Text_IO.Put_Line ("  top button pad: " & Props.Top_Button_Pad'Image);
-      Ada.Text_IO.Put_Line ("  pointing stick: " & Props.Pointing_Stick'Image);
-      Ada.Text_IO.Put_Line ("  accelerometer:  " & Props.Accelerometer'Image);
+      Ada.Text_IO.Put_Line ("  Pointer:        " & Props.Pointer'Image);
+      Ada.Text_IO.Put_Line ("  Direct:         " & Props.Direct'Image);
+      Ada.Text_IO.Put_Line ("  Button pad:     " & Props.Button_Pad'Image);
+      Ada.Text_IO.Put_Line ("  Semi mt:        " & Props.Semi_Multi_Touch'Image);
+      Ada.Text_IO.Put_Line ("  Top button pad: " & Props.Top_Button_Pad'Image);
+      Ada.Text_IO.Put_Line ("  Pointing stick: " & Props.Pointing_Stick'Image);
+      Ada.Text_IO.Put_Line ("  Accelerometer:  " & Props.Accelerometer'Image);
+
+      Ada.Text_IO.Put_Line ("events:");
+      Ada.Text_IO.Put_Line ("  Synchronization:  " & Events.Synchronization'Image);
+      Ada.Text_IO.Put_Line ("  Keys:             " & Events.Keys'Image);
+      Ada.Text_IO.Put_Line ("  Relative axes:    " & Events.Relative_Axes'Image);
+      Ada.Text_IO.Put_Line ("  Absolute axes:    " & Events.Absolute_Axes'Image);
+      Ada.Text_IO.Put_Line ("  Miscellaneous:    " & Events.Miscellaneous'Image);
+      Ada.Text_IO.Put_Line ("  Switches:         " & Events.Switches'Image);
+      Ada.Text_IO.Put_Line ("  LEDs:             " & Events.LEDs'Image);
+      Ada.Text_IO.Put_Line ("  Sound:            " & Events.Sound'Image);
+      Ada.Text_IO.Put_Line ("  Repeat:           " & Events.Repeat'Image);
+      Ada.Text_IO.Put_Line ("  Force-feedback:   " & Events.Force_Feedback'Image);
+      Ada.Text_IO.Put_Line ("  Power:            " & Events.Power'Image);
+      Ada.Text_IO.Put_Line ("  Feedback Status:  " & Events.Feedback_Status'Image);
    end;
    loop
       EF.Read (Item);
