@@ -9,7 +9,7 @@ procedure Main is
    package LLF_IO is new Ada.Text_IO.Float_IO (Long_Long_Float);
 
    EF : Event_Device.Input_Device;
-   Item : Event_Device.Position;
+   Item : Event_Device.Accelerometer;
 begin
    EF.Open (Ada.Command_Line.Argument (1));
 
@@ -51,6 +51,7 @@ begin
       Ada.Text_IO.Put_Line ("  Power:            " & Events.Power'Image);
       Ada.Text_IO.Put_Line ("  Feedback Status:  " & Events.Feedback_Status'Image);
    end;
+
    loop
       EF.Read (Item);
       declare
@@ -61,7 +62,7 @@ begin
       begin
          LLF_IO.Put (L_I, Item => L, Aft => 8, Exp => 0);
          Ada.Text_IO.Put_Line
-           (Item.Time'Image & " A " & Item.X'Image & Item.Y'Image & Item.Z'Image & L_I);
+           (Item.Time'Image & " A " & Item.X'Image & Item.Y'Image & Item.Z'Image & L_I & "   " & Item.Rx'Image & Item.Ry'Image & Item.Rz'Image);
       end;
    end loop;
 end Main;

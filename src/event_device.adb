@@ -112,7 +112,7 @@ package body Event_Device is
    function Is_Open (Object : Input_Device) return Boolean is
      (Is_Open (Object.Event_File_Type));
 
-   procedure Read (Object : Input_Device; Item : out Position) is
+   procedure Read (Object : Input_Device; Item : out Accelerometer) is
       use Event_Device.Input_Dev;
       use type Interfaces.C.long;
       use type Interfaces.C.unsigned_short;
@@ -125,15 +125,8 @@ package body Event_Device is
       Event : Input_Event;
       Has_Dropped : Boolean := False;
    begin
-      Item.Time := 0.0;
-
       loop
          Input_Event'Read (Object.Event_Stream, Event);
-
-         if Item.Time = 0.0 then
-            Item.Time := Duration (Event.Time.Seconds)
-              + Duration (Event.Time.Microseconds) / 1.0e6;
-         end if;
 
          case Event.Event is
             when Absolute =>
@@ -173,6 +166,8 @@ package body Event_Device is
                begin
                   case Code is
                      when Report =>
+                        Item.Time := Duration (Event.Time.Seconds)
+                          + Duration (Event.Time.Microseconds) / 1.0e6;
                         exit;
                      when Dropped =>
                         Has_Dropped := True;
