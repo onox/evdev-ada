@@ -36,6 +36,14 @@ package Event_Device is
       Value, Minimum, Maximum, Fuzz, Flat, Resolution : Integer;
    end record;
 
+   type Axis_Kind is
+     (X, Y, Z, Rx, Ry, Rz,
+      Throttle, Rudder, Wheel, Gas, Brake,
+      Hat_0X, Hat_0Y, Hat_1X, Hat_1Y,
+      Hat_2X, Hat_2Y, Hat_3X, Hat_3Y,
+      Pressure, Distance, Tilt_X, Tilt_Y,
+      Tool_Width, Volume);
+
    type Device_Properties is record
       Pointer          : Boolean := False;
       Direct           : Boolean := False;
@@ -84,7 +92,7 @@ package Event_Device is
    function File_Name (Object : Input_Device) return String
      with Pre => Object.Is_Open;
 
-   function Axis (Object : Input_Device) return Axis_Info
+   function Axis (Object : Input_Device; Axis : Axis_Kind) return Axis_Info
      with Pre => Object.Is_Open;
 
    procedure Read (Object : Input_Device; Item : out Accelerometer)
@@ -138,5 +146,33 @@ private
       Feedback_Status at 0 range 23 .. 23;
    end record;
    for Device_Events'Size use 32;
+
+   for Axis_Kind use
+     (X          => 0,
+      Y          => 1,
+      Z          => 2,
+      Rx         => 3,
+      Ry         => 4,
+      Rz         => 5,
+      Throttle   => 6,
+      Rudder     => 7,
+      Wheel      => 8,
+      Gas        => 9,
+      Brake      => 10,
+      Hat_0X     => 16,
+      Hat_0Y     => 17,
+      Hat_1X     => 18,
+      Hat_1Y     => 19,
+      Hat_2X     => 20,
+      Hat_2Y     => 21,
+      Hat_3X     => 22,
+      Hat_3Y     => 23,
+      Pressure   => 24,
+      Distance   => 25,
+      Tilt_X     => 26,
+      Tilt_Y     => 27,
+      Tool_Width => 28,
+      Volume     => 32);
+   for Axis_Kind'Size use Unsigned_8'Size;
 
 end Event_Device;

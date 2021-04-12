@@ -28,10 +28,10 @@ package body Event_Device is
       return Hex_Image (High) & Hex_Image (Low);
    end Hex_Image;
 
+   use all type Event_Device.Input_Dev.Access_Mode;
+
    function ID (Object : Input_Device) return Device_ID is
       Result : Device_ID;
-
-      use all type Event_Device.Input_Dev.Access_Mode;
 
       Length : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#02#, Result'Size / System.Storage_Unit), Result'Address);
@@ -41,8 +41,6 @@ package body Event_Device is
 
    function Location (Object : Input_Device) return String is
       Result : String (1 .. 128) := (others => ' ');
-
-      use all type Event_Device.Input_Dev.Access_Mode;
 
       Length : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#07#, Result'Length), Result'Address);
@@ -54,8 +52,6 @@ package body Event_Device is
    function Unique_ID (Object : Input_Device) return String is
       Result : String (1 .. 128) := (others => ' ');
 
-      use all type Event_Device.Input_Dev.Access_Mode;
-
       Length : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#08#, Result'Length), Result'Address);
    begin
@@ -65,8 +61,6 @@ package body Event_Device is
 
    function Properties (Object : Input_Device) return Device_Properties is
       Result : Device_Properties;
-
-      use all type Event_Device.Input_Dev.Access_Mode;
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#09#, Result'Size), Result'Address);
@@ -78,8 +72,6 @@ package body Event_Device is
    function Events (Object : Input_Device) return Device_Events is
       Result : Device_Events;
 
-      use all type Event_Device.Input_Dev.Access_Mode;
-
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#20#, Result'Size), Result'Address);
    begin
@@ -87,17 +79,21 @@ package body Event_Device is
       return Result;
    end Events;
 
-   function Axis (Object : Input_Device) return Axis_Info is
+   function Axis (Object : Input_Device; Axis : Axis_Kind) return Axis_Info is
       Result : Axis_Info;
+
+      function Convert is new Ada.Unchecked_Conversion
+        (Source => Axis_Kind, Target => Unsigned_8);
+
+      Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD, (Read, 'E', 16#40# + Convert (Axis), Result'Size), Result'Address);
    begin
-      --  FIXME Implement
+      pragma Assert (Error_Code /= -1);
       return Result;
    end Axis;
 
    function Name (Object : Input_Device) return String is
       Result : String (1 .. 128) := (others => ' ');
-
-      use all type Event_Device.Input_Dev.Access_Mode;
 
       Length : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#06#, Result'Length), Result'Address);

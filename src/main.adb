@@ -50,6 +50,24 @@ begin
       Ada.Text_IO.Put_Line ("  Force-feedback:   " & Events.Force_Feedback'Image);
       Ada.Text_IO.Put_Line ("  Power:            " & Events.Power'Image);
       Ada.Text_IO.Put_Line ("  Feedback Status:  " & Events.Feedback_Status'Image);
+
+
+      Ada.Text_IO.Put_Line ("Axes:");
+      for Kind in Event_Device.Axis_Kind'Range loop
+         declare
+            Axis : constant Event_Device.Axis_Info := EF.Axis (Kind);
+         begin
+            if Axis.Resolution /= 0 then
+               Ada.Text_IO.Put_Line ("  " & Kind'Image & ":");
+               Ada.Text_IO.Put_Line ("    Value:      " & Axis.Value'Image);
+               Ada.Text_IO.Put_Line ("    Minimum:    " & Axis.Minimum'Image);
+               Ada.Text_IO.Put_Line ("    Maximum:    " & Axis.Maximum'Image);
+               Ada.Text_IO.Put_Line ("    Fuzz:       " & Axis.Fuzz'Image);
+               Ada.Text_IO.Put_Line ("    Flat:       " & Axis.Flat'Image);
+               Ada.Text_IO.Put_Line ("    Resolution: " & Axis.Resolution'Image);
+            end if;
+         end;
+      end loop;
    end;
 
    loop
