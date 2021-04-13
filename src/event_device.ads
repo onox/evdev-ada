@@ -3,11 +3,6 @@ private with Ada.Finalization;
 
 package Event_Device is
 
-   type Accel_Unit is delta 2.0 ** (-13) range -(2.0 ** 15) .. +(2.0 ** 15 - 2.0 ** (-13));
-   --  32768 / 8192 = 4
-   type Gyro_Unit is delta 2.0 ** (-10) range -(2.0 ** 21) .. +(2.0 ** 21 - 2.0 ** (-10));
-   --  2097152 / 1024 = 2048
-
    type Unsigned_8 is mod 2 ** 8
      with Size => 8;
 
@@ -17,16 +12,6 @@ package Event_Device is
    function Hex_Image (Value : Unsigned_8) return String;
 
    function Hex_Image (Value : Unsigned_16) return String;
-
-   type Accelerometer is record
-      X, Y, Z    : Accel_Unit := 0.0;
-      --  Linear acceleration
-
-      Rx, Ry, Rz : Gyro_Unit  := 0.0;
-      --  Angular velocity
-
-      Time       : Duration   := 0.0;
-   end record;
 
    type Device_ID is record
       Bus_Type, Vendor, Product, Version : Unsigned_16;
@@ -94,10 +79,6 @@ package Event_Device is
 
    function Axis (Object : Input_Device; Axis : Axis_Kind) return Axis_Info
      with Pre => Object.Is_Open;
-
-   procedure Read (Object : Input_Device; Item : out Accelerometer)
-     with Pre => Object.Is_Open;
-   --  TODO Check Object.Properties.Accelerometer?
 
    function Is_Open (Object : Input_Device) return Boolean;
 

@@ -2,14 +2,14 @@ with Ada.Command_Line;
 with Ada.Numerics.Long_Long_Elementary_Functions;
 with Ada.Text_IO;
 
-with Event_Device;
+with Event_Device.Accelerometers;
 
 procedure Main is
    package LLEF renames Ada.Numerics.Long_Long_Elementary_Functions;
    package LLF_IO is new Ada.Text_IO.Float_IO (Long_Long_Float);
 
-   EF : Event_Device.Input_Device;
-   Item : Event_Device.Accelerometer;
+   EF   : Event_Device.Accelerometers.Accelerometer;
+   Item : Event_Device.Accelerometers.Measurement;
 begin
    EF.Open (Ada.Command_Line.Argument (1));
 
@@ -51,7 +51,6 @@ begin
       Ada.Text_IO.Put_Line ("  Power:            " & Events.Power'Image);
       Ada.Text_IO.Put_Line ("  Feedback Status:  " & Events.Feedback_Status'Image);
 
-
       Ada.Text_IO.Put_Line ("Axes:");
       for Kind in Event_Device.Axis_Kind'Range loop
          declare
@@ -73,14 +72,18 @@ begin
    loop
       EF.Read (Item);
       declare
+         use Event_Device.Accelerometers;
+
+         V1 : constant Accel_Unit := Item.X * Item.X + Item.Y * Item.Y + Item.Z * Item.Z;
          L : constant Long_Long_Float :=
-           1.0 - LLEF.Sqrt (Long_Long_Float (Item.X * Item.X + Item.Y * Item.Y + Item.Z * Item.Z));
+           1.0 - LLEF.Sqrt (Long_Long_Float (V1));
 
          L_I : String := "-0.00000000";
       begin
          LLF_IO.Put (L_I, Item => L, Aft => 8, Exp => 0);
          Ada.Text_IO.Put_Line
-           (Item.Time'Image & " A " & Item.X'Image & Item.Y'Image & Item.Z'Image & L_I & "   " & Item.Rx'Image & Item.Ry'Image & Item.Rz'Image);
+           (Item.Time'Image & " A " & Item.X'Image & Item.Y'Image & Item.Z'Image & L_I &
+            "   " & Item.Rx'Image & Item.Ry'Image & Item.Rz'Image);
       end;
    end loop;
 end Main;

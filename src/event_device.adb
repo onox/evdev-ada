@@ -1,5 +1,3 @@
-with Interfaces.C.Strings;
-
 with System;
 
 with Ada.IO_Exceptions;
@@ -29,18 +27,20 @@ package body Event_Device is
    end Hex_Image;
 
    use all type Event_Device.Input_Dev.Access_Mode;
+   use type Event_Device.Input_Dev.Unsigned_14;
 
    function ID (Object : Input_Device) return Device_ID is
-      Result : Device_ID;
+      Result : aliased Device_ID;
 
       Length : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#02#, Result'Size / System.Storage_Unit), Result'Address);
    begin
+      pragma Assert (Length >= 0);
       return Result;
    end ID;
 
    function Location (Object : Input_Device) return String is
-      Result : String (1 .. 128) := (others => ' ');
+      Result : aliased String (1 .. 128) := (others => ' ');
 
       Length : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#07#, Result'Length), Result'Address);
@@ -50,7 +50,7 @@ package body Event_Device is
    end Location;
 
    function Unique_ID (Object : Input_Device) return String is
-      Result : String (1 .. 128) := (others => ' ');
+      Result : aliased String (1 .. 128) := (others => ' ');
 
       Length : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#08#, Result'Length), Result'Address);
@@ -60,7 +60,7 @@ package body Event_Device is
    end Unique_ID;
 
    function Properties (Object : Input_Device) return Device_Properties is
-      Result : Device_Properties;
+      Result : aliased Device_Properties;
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#09#, Result'Size), Result'Address);
@@ -70,7 +70,7 @@ package body Event_Device is
    end Properties;
 
    function Events (Object : Input_Device) return Device_Events is
-      Result : Device_Events;
+      Result : aliased Device_Events;
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#20#, Result'Size), Result'Address);
@@ -80,7 +80,7 @@ package body Event_Device is
    end Events;
 
    function Axis (Object : Input_Device; Axis : Axis_Kind) return Axis_Info is
-      Result : Axis_Info;
+      Result : aliased Axis_Info;
 
       function Convert is new Ada.Unchecked_Conversion
         (Source => Axis_Kind, Target => Unsigned_8);
@@ -93,7 +93,7 @@ package body Event_Device is
    end Axis;
 
    function Name (Object : Input_Device) return String is
-      Result : String (1 .. 128) := (others => ' ');
+      Result : aliased String (1 .. 128) := (others => ' ');
 
       Length : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#06#, Result'Length), Result'Address);
@@ -107,80 +107,6 @@ package body Event_Device is
 
    function Is_Open (Object : Input_Device) return Boolean is
      (Is_Open (Object.Event_File_Type));
-
-   procedure Read (Object : Input_Device; Item : out Accelerometer) is
-      use Event_Device.Input_Dev;
-      use type Interfaces.C.long;
-      use type Interfaces.C.unsigned_short;
-
-      function Convert is new Ada.Unchecked_Conversion
-        (Source => Interfaces.C.unsigned_short, Target => Sync_Code_Kind);
-      function Convert is new Ada.Unchecked_Conversion
-        (Source => Unsigned_8, Target => Axis_Kind);
-
-      Event : Input_Event;
-      Has_Dropped : Boolean := False;
-   begin
-      loop
-         Input_Event'Read (Object.Event_Stream, Event);
-
-         case Event.Event is
-            when Absolute =>
-               if not Has_Dropped then
-                  declare
-                     Code : constant Axis_Kind := Convert (Unsigned_8 (Event.Code));
-
-                     Resolution_Absolute   : constant := 8192.0;
-                     Resolution_Rotational : constant := 1024.0;
-                  begin
-                     case Code is
-                        --  Accelerometer (resolution = units/mm)
-                        --  If INPUT_PROP_ACCELEROMETER is set, resolution = units/g
-                        --  DS4 = 8192 units
-                        when X =>
-                           Item.X := Accel_Unit (Event.Value) / Resolution_Absolute;
-                        when Y =>
-                           Item.Y := Accel_Unit (Event.Value) / Resolution_Absolute;
-                        when Z =>
-                           Item.Z := Accel_Unit (Event.Value) / Resolution_Absolute;
-
-                        --  Gyro (resolution = units/rad)
-                        --  If INPUT_PROP_ACCELEROMETER is set, resolution = units/deg/s
-                        --  DS4 = 1024 units
-                        when Rx =>
-                           Item.Rx := Gyro_Unit (Event.Value) / Resolution_Rotational;
-                        when Ry =>
-                           Item.Ry := Gyro_Unit (Event.Value) / Resolution_Rotational;
-                        when Rz =>
-                           Item.Rz := Gyro_Unit (Event.Value) / Resolution_Rotational;
-
-                        when others =>
-                           raise Program_Error with "Unexpected axis " & Code'Image;
-                     end case;
-                  end;
-               end if;
-            when Synchronization =>
-               declare
-                  Code : constant Sync_Code_Kind := Convert (Event.Code);
-               begin
-                  case Code is
-                     when Report =>
-                        Item.Time := Duration (Event.Time.Seconds)
-                          + Duration (Event.Time.Microseconds) / 1.0e6;
-                        exit;
-                     when Dropped =>
-                        Has_Dropped := True;
-                     when others =>
-                        null;
-                  end case;
-               end;
-            when Miscellaneous =>
-               null;
-            when others =>
-               raise Program_Error with "Unexpected event " & Event.Event'Image;
-         end case;
-      end loop;
-   end Read;
 
    procedure Open (Object : in out Input_Device; File_Name : String) is
    begin

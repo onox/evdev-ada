@@ -72,10 +72,14 @@ private package Event_Device.Input_Dev is
       Read_Write => 3);
    for Access_Mode'Size use 2;
 
+   type Unsigned_14 is mod 2 ** 14
+     with Size => 14;
+
    type IOCTL_Command is record
-      Mode         : Access_Mode;
-      Letter       : Character;
-      Number, Size : Unsigned_8;
+      Mode   : Access_Mode;
+      Letter : Character;
+      Number : Unsigned_8;
+      Size   : Unsigned_14;
    end record;
 
    function IO_Control
@@ -110,7 +114,7 @@ private
       Config    => 1,
       Mt_Report => 2,
       Dropped   => 3);
-   for Sync_Code_Kind'size use unsigned_short'Size;
+   for Sync_Code_Kind'Size use unsigned_short'Size;
 
    for Event_Kind use
      (Synchronization => 0,
@@ -125,7 +129,7 @@ private
       Force_Feedback  => 21,
       Power           => 22,
       Feedback_Status => 23);
-   for Event_Kind'size use unsigned_short'Size;
+   for Event_Kind'Size use unsigned_short'Size;
 
    for Timeval'Size use 2 * long'Size;
    for Input_Event'Size use 2 * long'Size + 2 * unsigned_short'Size + int'Size;
@@ -152,6 +156,6 @@ private
      (FD      : Integer;
       Command : IOCTL_Command;
       Value   : System.Address) return Integer
-   is (Integer (ioctl(int (FD), unsigned_long (Convert (Command)), Value)));
+   is (Integer (ioctl (int (FD), unsigned_long (Convert (Command)), Value)));
 
 end Event_Device.Input_Dev;
