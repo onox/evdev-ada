@@ -116,7 +116,7 @@ package body Event_Device is
       function Convert is new Ada.Unchecked_Conversion
         (Source => Interfaces.C.unsigned_short, Target => Sync_Code_Kind);
       function Convert is new Ada.Unchecked_Conversion
-        (Source => Interfaces.C.unsigned_short, Target => Abs_Code_Kind);
+        (Source => Unsigned_8, Target => Axis_Kind);
 
       Event : Input_Event;
       Has_Dropped : Boolean := False;
@@ -128,7 +128,7 @@ package body Event_Device is
             when Absolute =>
                if not Has_Dropped then
                   declare
-                     Code : constant Abs_Code_Kind := Convert (Event.Code);
+                     Code : constant Axis_Kind := Convert (Unsigned_8 (Event.Code));
 
                      Resolution_Absolute   : constant := 8192.0;
                      Resolution_Rotational : constant := 1024.0;
@@ -153,6 +153,9 @@ package body Event_Device is
                            Item.Ry := Gyro_Unit (Event.Value) / Resolution_Rotational;
                         when Rz =>
                            Item.Rz := Gyro_Unit (Event.Value) / Resolution_Rotational;
+
+                        when others =>
+                           raise Program_Error with "Unexpected axis " & Code'Image;
                      end case;
                   end;
                end if;
@@ -174,7 +177,7 @@ package body Event_Device is
             when Miscellaneous =>
                null;
             when others =>
-               raise Program_Error with Event.Event'Image;
+               raise Program_Error with "Unexpected event " & Event.Event'Image;
          end case;
       end loop;
    end Read;

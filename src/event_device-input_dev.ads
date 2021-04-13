@@ -30,10 +30,10 @@ private package Event_Device.Input_Dev is
    --  Rel_Code_Kind:
    --  X, Y, Z, Rx, Ry, Rz, Horizontal_Wheel, Diagonal, Wheel, Misc
 
-   type Abs_Code_Kind is (X, Y, Z, Rx, Ry, Rz);
+   --  X, Y, Z, Rx, Ry, Rz
    --  Throttle, Rudder, Wheel, Gas, Brake,
    --  Hat0x, Hat0y, Hat1x, Hat1y, Hat2x, Hat2y, Hat3x, Hat3y,
-   --  Pressure, Distance, Tilt_X, Tilt_Y, Tool_Width, Volume, Misc
+   --  Pressure, Distance, Tilt_X, Tilt_Y, Tool_Width, Volume
 
    --  Switch_Code_Kind:
    --  Lid, Tablet_Mode, Headphone_Insert, Rfkill_all, Radio
@@ -85,9 +85,6 @@ private package Event_Device.Input_Dev is
 
    Msc_Scan      : constant := 4;
    Msc_Timestamp : constant := 5;
-
-   Abs_Hat0x : constant := 16;
-   Abs_Hat0y : constant := 17;
 
    --  Force-feedback / rumble
    FF_Rumble    : constant := 80;
