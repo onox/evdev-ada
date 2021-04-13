@@ -69,6 +69,10 @@ begin
       end loop;
    end;
 
+   if Ada.Command_Line.Argument (2) = "-q" then
+      raise Program_Error;
+   end if;
+
    loop
       EF.Read (Item);
       declare
