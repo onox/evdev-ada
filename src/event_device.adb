@@ -439,7 +439,7 @@ package body Event_Device is
 
    procedure Play_Force_Feedback_Effect
      (Object     : Input_Device;
-      Identifier : Force_Feedback_Effect_ID;
+      Identifier : Uploaded_Force_Feedback_Effect_ID;
       Count      : Natural)
    is
       Event : constant Input_Dev.Input_Event :=

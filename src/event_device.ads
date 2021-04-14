@@ -4,6 +4,8 @@ private with Ada.Finalization;
 private with Ada.Streams.Stream_IO;
 private with Ada.Unchecked_Conversion;
 
+limited with Event_Device.Force_Feedbacks;
+
 package Event_Device is
 
    type Unsigned_8 is mod 2 ** 8
@@ -233,11 +235,14 @@ package Event_Device is
      (Object : Input_Device;
       Value  : Force_Feedback_Auto_Center);
 
-   type Force_Feedback_Effect_ID is range 0 .. 15;
+   type Force_Feedback_Effect_ID is range -1 .. 95;
+
+   subtype Uploaded_Force_Feedback_Effect_ID is Force_Feedback_Effect_ID
+     range 0 .. Force_Feedback_Effect_ID'Last;
 
    procedure Play_Force_Feedback_Effect
      (Object     : Input_Device;
-      Identifier : Force_Feedback_Effect_ID;
+      Identifier : Uploaded_Force_Feedback_Effect_ID;
       Count      : Natural);
 
    function Properties (Object : Input_Device) return Device_Properties
