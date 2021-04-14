@@ -12,9 +12,6 @@ package Event_Device is
    type Unsigned_16 is mod 2 ** 16
      with Size => 16;
 
-   type Unsigned_64 is mod 2 ** 64
-     with Size => 64;
-
    function Hex_Image (Value : Unsigned_8) return String;
 
    function Hex_Image (Value : Unsigned_16) return String;
@@ -257,6 +254,9 @@ private
 
    overriding procedure Finalize (Object : in out Input_Device);
 
+   type Unsigned_64 is mod 2 ** 64
+     with Size => 64;
+
    for Device_Properties use record
       Pointer          at 0 range 0 .. 0;
       Direct           at 0 range 1 .. 1;
@@ -440,6 +440,26 @@ private
       Bell  => 16#01#,
       Tone  => 16#02#);
    for Sound_Kind'Size use 8;
+
+   --  Force-feedback / rumble
+--   FF_Rumble    : constant := 16#50#;
+--   FF_Periodic  : constant := 16#51#;
+--   FF_Constant  : constant := 16#52#;
+--   FF_Spring    : constant := 16#53#;
+--   FF_Friction  : constant := 16#54#;
+--   FF_Damper    : constant := 16#55#;
+--   FF_Inertia   : constant := 16#56#;
+--   FF_Ramp      : constant := 16#57#;
+
+--   FF_Square    : constant := 16#58#;
+--   FF_Triangle  : constant := 16#59#;
+--   FF_Sine      : constant := 16#5A#;
+--   FF_Saw_Up    : constant := 16#5B#;
+--   FF_Saw_Down  : constant := 16#5C#;
+--   FF_Custom    : constant := 16#5D#;
+
+--   FF_Gain        : constant := 16#60#;
+--   FF_Auto_Center : constant := 16#61#;
 
 --   for Force_Feedback_'Size use 128;
 
