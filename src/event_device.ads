@@ -40,7 +40,19 @@ package Event_Device is
 
    type Synchronization_Kind is (Report, Config, MT_Report, Dropped);
 
-   type Relative_Axis_Kind is (X, Y, Z, Rx, Ry, Rz, Horizontal_Wheel, Diagonal, Wheel, Misc);
+   type Relative_Axis_Kind is
+     (X,
+      Y,
+      Z,
+      Rx,
+      Ry,
+      Rz,
+      Horizontal_Wheel,
+      Diagonal,
+      Wheel,
+      Misc,
+      Wheel_High_Res,
+      Horizontal_Wheel_High_Res);
 
    type Absolute_Axis_Kind is
      (X,
@@ -313,16 +325,18 @@ private
    --   for Key_'Size use 768;
 
    for Relative_Axis_Kind use
-     (X                => 16#00#,
-      Y                => 16#01#,
-      Z                => 16#02#,
-      Rx               => 16#03#,
-      Ry               => 16#04#,
-      Rz               => 16#05#,
-      Horizontal_Wheel => 16#06#,
-      Diagonal         => 16#07#,
-      Wheel            => 16#08#,
-      Misc             => 16#09#);
+     (X                         => 16#00#,
+      Y                         => 16#01#,
+      Z                         => 16#02#,
+      Rx                        => 16#03#,
+      Ry                        => 16#04#,
+      Rz                        => 16#05#,
+      Horizontal_Wheel          => 16#06#,
+      Diagonal                  => 16#07#,
+      Wheel                     => 16#08#,
+      Misc                      => 16#09#,
+      Wheel_High_Res            => 16#0B#,
+      Horizontal_Wheel_High_Res => 16#0C#);
    for Relative_Axis_Kind'Size use 16;
 
    for Absolute_Axis_Kind'Size use 64;
