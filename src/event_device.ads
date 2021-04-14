@@ -199,6 +199,9 @@ package Event_Device is
 
    type Input_Device is tagged limited private;
 
+   function Name (Object : Input_Device) return String
+     with Pre => Object.Is_Open;
+
    function ID (Object : Input_Device) return Device_ID
      with Pre => Object.Is_Open;
 
@@ -206,6 +209,11 @@ package Event_Device is
      with Pre => Object.Is_Open;
 
    function Unique_ID (Object : Input_Device) return String
+     with Pre => Object.Is_Open;
+
+   ----------------------------------------------------------------------------
+
+   function Axis (Object : Input_Device; Axis : Absolute_Axis_Info_Kind) return Axis_Info
      with Pre => Object.Is_Open;
 
    function Properties (Object : Input_Device) return Device_Properties
@@ -241,13 +249,9 @@ package Event_Device is
    function Features (Object : Input_Device) return Force_Feedback_Features
      with Pre => Object.Is_Open;
 
-   function Name (Object : Input_Device) return String
-     with Pre => Object.Is_Open;
+   ----------------------------------------------------------------------------
 
    function File_Name (Object : Input_Device) return String
-     with Pre => Object.Is_Open;
-
-   function Axis (Object : Input_Device; Axis : Absolute_Axis_Info_Kind) return Axis_Info
      with Pre => Object.Is_Open;
 
    function Is_Open (Object : Input_Device) return Boolean;
