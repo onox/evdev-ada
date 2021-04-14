@@ -64,6 +64,7 @@ project Main is
       when "release" =>
          Build_Switches := ("-O2",     -- Optimization
                             "-march=native",
+                            "-fno-guess-branch-probability",  -- Prevent incorrect Device_ID in 7.5
                             "-fomit-frame-pointer",
                             "-gnatn"); -- Enable inlining
       when "debug" =>
