@@ -54,7 +54,7 @@ package Event_Device is
       Wheel_High_Res,
       Horizontal_Wheel_High_Res);
 
-   type Absolute_Axis_Kind is
+   type Absolute_Axis_Info_Kind is
      (X,
       Y,
       Z,
@@ -96,6 +96,8 @@ package Event_Device is
       MT_Distance,
       MT_Tool_X,
       MT_Tool_Y);
+
+   type Absolute_Axis_Kind is new Absolute_Axis_Info_Kind;
 
    type Switch_Kind is
      (Lid,
@@ -245,7 +247,7 @@ package Event_Device is
    function File_Name (Object : Input_Device) return String
      with Pre => Object.Is_Open;
 
-   function Axis (Object : Input_Device; Axis : Absolute_Axis_Kind) return Axis_Info
+   function Axis (Object : Input_Device; Axis : Absolute_Axis_Info_Kind) return Axis_Info
      with Pre => Object.Is_Open;
 
    function Is_Open (Object : Input_Device) return Boolean;
@@ -338,6 +340,52 @@ private
       Wheel_High_Res            => 16#0B#,
       Horizontal_Wheel_High_Res => 16#0C#);
    for Relative_Axis_Kind'Size use 16;
+
+   --  Representation clause for Absolute_Axis_Info_Kind is needed
+   --  for function Axis
+   for Absolute_Axis_Info_Kind use
+     (X                => 16#00#,
+      Y                => 16#01#,
+      Z                => 16#02#,
+      Rx               => 16#03#,
+      Ry               => 16#04#,
+      Rz               => 16#05#,
+      Throttle         => 16#06#,
+      Rudder           => 16#07#,
+      Wheel            => 16#08#,
+      Gas              => 16#09#,
+      Brake            => 16#0A#,
+      Hat_0X           => 16#10#,
+      Hat_0Y           => 16#11#,
+      Hat_1X           => 16#12#,
+      Hat_1Y           => 16#13#,
+      Hat_2X           => 16#14#,
+      Hat_2Y           => 16#15#,
+      Hat_3X           => 16#16#,
+      Hat_3Y           => 16#17#,
+      Pressure         => 16#18#,
+      Distance         => 16#19#,
+      Tilt_X           => 16#1A#,
+      Tilt_Y           => 16#1B#,
+      Tool_Width       => 16#1C#,
+      Volume           => 16#20#,
+      Misc             => 16#28#,
+      MT_Slot          => 16#2F#,
+      MT_Touch_Major   => 16#30#,
+      MT_Touch_Minor   => 16#31#,
+      MT_Width_Major   => 16#32#,
+      MT_Width_Minor   => 16#33#,
+      MT_Orientation   => 16#34#,
+      MT_Position_X    => 16#35#,
+      MT_Position_Y    => 16#36#,
+      MT_Tool_Type     => 16#37#,
+      MT_Blob_ID       => 16#38#,
+      MT_Tracking_ID   => 16#39#,
+      MT_Pressure      => 16#3A#,
+      MT_Distance      => 16#3B#,
+      MT_Tool_X        => 16#3C#,
+      MT_Tool_Y        => 16#3D#);
+   for Absolute_Axis_Info_Kind'Size use 64;
 
    for Absolute_Axis_Kind'Size use 64;
 

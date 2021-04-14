@@ -377,11 +377,11 @@ package body Event_Device is
          Auto_Center => Result.Auto_Center);
    end Features;
 
-   function Axis (Object : Input_Device; Axis : Absolute_Axis_Kind) return Axis_Info is
+   function Axis (Object : Input_Device; Axis : Absolute_Axis_Info_Kind) return Axis_Info is
       Result : aliased Axis_Info;
 
       function Convert is new Ada.Unchecked_Conversion
-        (Source => Absolute_Axis_Kind, Target => Unsigned_64);
+        (Source => Absolute_Axis_Info_Kind, Target => Unsigned_64);
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#40# + Unsigned_8 (Convert (Axis)), Result'Size),
