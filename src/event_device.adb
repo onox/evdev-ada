@@ -9,6 +9,95 @@ package body Event_Device is
 
    subtype Unused_Type is Boolean range False .. False;
 
+   type Internal_Absolute_Axis_Features is record
+      X              : Boolean := False;
+      Y              : Boolean := False;
+      Z              : Boolean := False;
+      Rx             : Boolean := False;
+      Ry             : Boolean := False;
+      Rz             : Boolean := False;
+      Throttle       : Boolean := False;
+      Rudder         : Boolean := False;
+      Wheel          : Boolean := False;
+      Gas            : Boolean := False;
+      Brake          : Boolean := False;
+      Hat_0X         : Boolean := False;
+      Hat_0Y         : Boolean := False;
+      Hat_1X         : Boolean := False;
+      Hat_1Y         : Boolean := False;
+      Hat_2X         : Boolean := False;
+      Hat_2Y         : Boolean := False;
+      Hat_3X         : Boolean := False;
+      Hat_3Y         : Boolean := False;
+      Pressure       : Boolean := False;
+      Distance       : Boolean := False;
+      Tilt_X         : Boolean := False;
+      Tilt_Y         : Boolean := False;
+      Tool_Width     : Boolean := False;
+      Volume         : Boolean := False;
+      Misc           : Boolean := False;
+      MT_Slot        : Boolean := False;
+      MT_Touch_Major : Boolean := False;
+      MT_Touch_Minor : Boolean := False;
+      MT_Width_Major : Boolean := False;
+      MT_Width_Minor : Boolean := False;
+      MT_Orientation : Boolean := False;
+      MT_Position_X  : Boolean := False;
+      MT_Position_Y  : Boolean := False;
+      MT_Tool_Type   : Boolean := False;
+      MT_Blob_ID     : Boolean := False;
+      MT_Tracking_ID : Boolean := False;
+      MT_Pressure    : Boolean := False;
+      MT_Distance    : Boolean := False;
+      MT_Tool_X      : Boolean := False;
+      MT_Tool_Y      : Boolean := False;
+   end record;
+
+   for Internal_Absolute_Axis_Features use record
+      X              at 0 range 0 .. 0;
+      Y              at 0 range 1 .. 1;
+      Z              at 0 range 2 .. 2;
+      Rx             at 0 range 3 .. 3;
+      Ry             at 0 range 4 .. 4;
+      Rz             at 0 range 5 .. 5;
+      Throttle       at 0 range 6 .. 6;
+      Rudder         at 0 range 7 .. 7;
+      Wheel          at 0 range 8 .. 8;
+      Gas            at 0 range 9 .. 9;
+      Brake          at 0 range 10 .. 10;
+      Hat_0X         at 0 range 16 .. 16;
+      Hat_0Y         at 0 range 17 .. 17;
+      Hat_1X         at 0 range 18 .. 18;
+      Hat_1Y         at 0 range 19 .. 19;
+      Hat_2X         at 0 range 20 .. 20;
+      Hat_2Y         at 0 range 21 .. 21;
+      Hat_3X         at 0 range 22 .. 22;
+      Hat_3Y         at 0 range 23 .. 23;
+      Pressure       at 0 range 24 .. 24;
+      Distance       at 0 range 25 .. 25;
+      Tilt_X         at 0 range 26 .. 26;
+      Tilt_Y         at 0 range 27 .. 27;
+      Tool_Width     at 0 range 28 .. 28;
+      Volume         at 0 range 32 .. 32;
+      Misc           at 0 range 40 .. 40;
+      MT_Slot        at 0 range 47 .. 47;
+      MT_Touch_Major at 0 range 48 .. 48;
+      MT_Touch_Minor at 0 range 49 .. 49;
+      MT_Width_Major at 0 range 50 .. 50;
+      MT_Width_Minor at 0 range 51 .. 51;
+      MT_Orientation at 0 range 52 .. 52;
+      MT_Position_X  at 0 range 53 .. 53;
+      MT_Position_Y  at 0 range 54 .. 54;
+      MT_Tool_Type   at 0 range 55 .. 55;
+      MT_Blob_ID     at 0 range 56 .. 56;
+      MT_Tracking_ID at 0 range 57 .. 57;
+      MT_Pressure    at 0 range 58 .. 58;
+      MT_Distance    at 0 range 59 .. 59;
+      MT_Tool_X      at 0 range 60 .. 60;
+      MT_Tool_Y      at 0 range 61 .. 61;
+   end record;
+   for Internal_Absolute_Axis_Features'Size use 64;
+
    type Internal_Force_Feedback_Features is record
       Rumble      : Boolean := False;
       Periodic    : Boolean := False;
@@ -153,14 +242,56 @@ package body Event_Device is
    end Features;
 
    function Features (Object : Input_Device) return Absolute_Axis_Features is
-      Result : aliased Absolute_Axis_Features;
+      Result : aliased Internal_Absolute_Axis_Features;
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (Absolute)), Result'Size),
          Result'Address);
    begin
       pragma Assert (Error_Code /= -1);
-      return Result;
+
+      return
+        (X              => Result.X,
+         Y              => Result.Y,
+         Z              => Result.Z,
+         Rx             => Result.Rx,
+         Ry             => Result.Ry,
+         Rz             => Result.Rz,
+         Throttle       => Result.Throttle,
+         Rudder         => Result.Rudder,
+         Wheel          => Result.Wheel,
+         Gas            => Result.Gas,
+         Brake          => Result.Brake,
+         Hat_0X         => Result.Hat_0X,
+         Hat_0Y         => Result.Hat_0Y,
+         Hat_1X         => Result.Hat_1X,
+         Hat_1Y         => Result.Hat_1Y,
+         Hat_2X         => Result.Hat_2X,
+         Hat_2Y         => Result.Hat_2Y,
+         Hat_3X         => Result.Hat_3X,
+         Hat_3Y         => Result.Hat_3Y,
+         Pressure       => Result.Pressure,
+         Distance       => Result.Distance,
+         Tilt_X         => Result.Tilt_X,
+         Tilt_Y         => Result.Tilt_Y,
+         Tool_Width     => Result.Tool_Width,
+         Volume         => Result.Volume,
+         Misc           => Result.Misc,
+         MT_Slot        => Result.MT_Slot,
+         MT_Touch_Major => Result.MT_Touch_Major,
+         MT_Touch_Minor => Result.MT_Touch_Minor,
+         MT_Width_Major => Result.MT_Width_Major,
+         MT_Width_Minor => Result.MT_Width_Minor,
+         MT_Orientation => Result.MT_Orientation,
+         MT_Position_X  => Result.MT_Position_X,
+         MT_Position_Y  => Result.MT_Position_Y,
+         MT_Tool_Type   => Result.MT_Tool_Type,
+         MT_Blob_ID     => Result.MT_Blob_ID,
+         MT_Tracking_ID => Result.MT_Tracking_ID,
+         MT_Pressure    => Result.MT_Pressure,
+         MT_Distance    => Result.MT_Distance,
+         MT_Tool_X      => Result.MT_Tool_X,
+         MT_Tool_Y      => Result.MT_Tool_Y);
    end Features;
 
    function Features (Object : Input_Device) return Switch_Features is
