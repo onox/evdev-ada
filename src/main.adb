@@ -178,6 +178,8 @@ begin
       end if;
    end;
 
+   Ada.Text_IO.Put_Line ("Force feedback effects: " & EF.Force_Feedback_Effects'Image);
+
    if Ada.Command_Line.Argument (2) = "-q" then
       raise Program_Error;
    end if;

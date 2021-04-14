@@ -216,6 +216,30 @@ package Event_Device is
    function Axis (Object : Input_Device; Axis : Absolute_Axis_Info_Kind) return Axis_Info
      with Pre => Object.Is_Open;
 
+   function Force_Feedback_Effects (Object : Input_Device) return Natural
+     with Pre => Object.Is_Open;
+   --  Return the number of concurrent force-feedback effects that
+   --  the device supports
+
+   type Force_Feedback_Gain is delta 0.01 digits 3 range 0.0 .. 1.0;
+
+   type Force_Feedback_Auto_Center is delta 0.01 digits 3 range 0.0 .. 1.0;
+
+   procedure Set_Force_Feedback_Gain
+     (Object : Input_Device;
+      Value  : Force_Feedback_Gain);
+
+   procedure Set_Force_Feedback_Auto_Center
+     (Object : Input_Device;
+      Value  : Force_Feedback_Auto_Center);
+
+   type Force_Feedback_Effect_ID is range 0 .. 15;
+
+   procedure Play_Force_Feedback_Effect
+     (Object     : Input_Device;
+      Identifier : Force_Feedback_Effect_ID;
+      Count      : Natural);
+
    function Properties (Object : Input_Device) return Device_Properties
      with Pre => Object.Is_Open;
 

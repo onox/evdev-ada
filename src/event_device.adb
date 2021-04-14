@@ -163,6 +163,8 @@ package body Event_Device is
       return Hex_Image (High) & Hex_Image (Low);
    end Hex_Image;
 
+   ----------------------------------------------------------------------------
+
    use all type Event_Device.Input_Dev.Access_Mode;
    use type Event_Device.Input_Dev.Unsigned_14;
 
@@ -195,6 +197,8 @@ package body Event_Device is
       pragma Assert (Length >= 0);
       return Result (1 .. Length);
    end Unique_ID;
+
+   ----------------------------------------------------------------------------
 
    function Properties (Object : Input_Device) return Device_Properties is
       Result : aliased Device_Properties;
@@ -377,6 +381,8 @@ package body Event_Device is
          Auto_Center => Result.Auto_Center);
    end Features;
 
+   ----------------------------------------------------------------------------
+
    function Axis (Object : Input_Device; Axis : Absolute_Axis_Info_Kind) return Axis_Info is
       Result : aliased Axis_Info;
 
@@ -390,6 +396,60 @@ package body Event_Device is
       pragma Assert (Error_Code /= -1);
       return Result;
    end Axis;
+
+   function Force_Feedback_Effects (Object : Input_Device) return Natural is
+      Result : aliased Integer;
+
+      Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD, (Read, 'E', 16#84#, Result'Size / System.Storage_Unit), Result'Address);
+   begin
+      pragma Assert (Error_Code /= -1);
+      return Result;
+   end Force_Feedback_Effects;
+
+   procedure Set_Force_Feedback_Gain
+     (Object : Input_Device;
+      Value  : Force_Feedback_Gain)
+   is
+      FF_Gain_Code : constant := 16#60#;
+
+      Event : constant Input_Dev.Input_Event :=
+        (Time  => (0, 0),
+         Event => Force_Feedback,
+         Code  => FF_Gain_Code,
+         Value => Interfaces.C.int (16#FF_FF.00# * Value));
+   begin
+      Input_Dev.Input_Event'Write (Object.Event_Stream, Event);
+   end Set_Force_Feedback_Gain;
+
+   procedure Set_Force_Feedback_Auto_Center
+     (Object : Input_Device;
+      Value  : Force_Feedback_Auto_Center)
+   is
+      FF_Auto_Center_Code : constant := 16#61#;
+
+      Event : constant Input_Dev.Input_Event :=
+        (Time  => (0, 0),
+         Event => Force_Feedback,
+         Code  => FF_Auto_Center_Code,
+         Value => Interfaces.C.int (16#FF_FF.00# * Value));
+   begin
+      Input_Dev.Input_Event'Write (Object.Event_Stream, Event);
+   end Set_Force_Feedback_Auto_Center;
+
+   procedure Play_Force_Feedback_Effect
+     (Object     : Input_Device;
+      Identifier : Force_Feedback_Effect_ID;
+      Count      : Natural)
+   is
+      Event : constant Input_Dev.Input_Event :=
+        (Time  => (0, 0),
+         Event => Force_Feedback,
+         Code  => Interfaces.C.unsigned_short (Identifier),
+         Value => Interfaces.C.int (Count));
+   begin
+      Input_Dev.Input_Event'Write (Object.Event_Stream, Event);
+   end Play_Force_Feedback_Effect;
 
    function Name (Object : Input_Device) return String is
       Result : aliased String (1 .. 128) := (others => ' ');
