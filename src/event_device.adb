@@ -1,7 +1,6 @@
 with System;
 
 with Ada.IO_Exceptions;
-with Ada.Unchecked_Conversion;
 with Ada.Streams.Stream_IO.C_Streams;
 
 with Event_Device.Input_Dev;
@@ -32,10 +31,10 @@ package body Event_Device is
    function ID (Object : Input_Device) return Device_ID is
       Result : aliased Device_ID;
 
-      Length : constant Integer := Event_Device.Input_Dev.IO_Control
+      Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#02#, Result'Size / System.Storage_Unit), Result'Address);
    begin
-      pragma Assert (Length >= 0);
+      pragma Assert (Error_Code /= -1);
       return Result;
    end ID;
 
@@ -79,14 +78,106 @@ package body Event_Device is
       return Result;
    end Events;
 
-   function Axis (Object : Input_Device; Axis : Axis_Kind) return Axis_Info is
+   function Convert is new Ada.Unchecked_Conversion
+     (Source => Event_Kind, Target => Interfaces.C.unsigned_short);
+
+   function Features (Object : Input_Device) return Synchronization_Features is
+      Result : aliased Synchronization_Features;
+
+      Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (Synchronization)), Result'Size),
+         Result'Address);
+   begin
+      pragma Assert (Error_Code /= -1);
+      return Result;
+   end Features;
+
+   function Features (Object : Input_Device) return Relative_Axis_Features is
+      Result : aliased Relative_Axis_Features;
+
+      Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (Relative)), Result'Size),
+         Result'Address);
+   begin
+      pragma Assert (Error_Code /= -1);
+      return Result;
+   end Features;
+
+   function Features (Object : Input_Device) return Absolute_Axis_Features is
+      Result : aliased Absolute_Axis_Features;
+
+      Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (Absolute)), Result'Size),
+         Result'Address);
+   begin
+      pragma Assert (Error_Code /= -1);
+      return Result;
+   end Features;
+
+   function Features (Object : Input_Device) return Switch_Features is
+      Result : aliased Switch_Features;
+
+      Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (Switch)), Result'Size),
+         Result'Address);
+   begin
+      pragma Assert (Error_Code /= -1);
+      return Result;
+   end Features;
+
+   function Features (Object : Input_Device) return Miscellaneous_Features is
+      Result : aliased Miscellaneous_Features;
+
+      Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (Miscellaneous)), Result'Size),
+         Result'Address);
+   begin
+      pragma Assert (Error_Code /= -1);
+      return Result;
+   end Features;
+
+   function Features (Object : Input_Device) return LED_Features is
+      Result : aliased LED_Features;
+
+      Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (LED)), Result'Size),
+         Result'Address);
+   begin
+      pragma Assert (Error_Code /= -1);
+      return Result;
+   end Features;
+
+   function Features (Object : Input_Device) return Repeat_Features is
+      Result : aliased Repeat_Features;
+
+      Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (Repeat)), Result'Size),
+         Result'Address);
+   begin
+      pragma Assert (Error_Code /= -1);
+      return Result;
+   end Features;
+
+   function Features (Object : Input_Device) return Sound_Features is
+      Result : aliased Sound_Features;
+
+      Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (Sound)), Result'Size),
+         Result'Address);
+   begin
+      pragma Assert (Error_Code /= -1);
+      return Result;
+   end Features;
+
+   function Axis (Object : Input_Device; Axis : Absolute_Axis_Kind) return Axis_Info is
       Result : aliased Axis_Info;
 
       function Convert is new Ada.Unchecked_Conversion
-        (Source => Axis_Kind, Target => Unsigned_8);
+        (Source => Absolute_Axis_Kind, Target => Unsigned_64);
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
-        (Object.FD, (Read, 'E', 16#40# + Convert (Axis), Result'Size), Result'Address);
+        (Object.FD, (Read, 'E', 16#40# + Unsigned_8 (Convert (Axis)), Result'Size),
+         Result'Address);
    begin
       pragma Assert (Error_Code /= -1);
       return Result;

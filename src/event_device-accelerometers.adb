@@ -19,9 +19,9 @@ package body Event_Device.Accelerometers is
       use type Interfaces.C.unsigned_short;
 
       function Convert is new Ada.Unchecked_Conversion
-        (Source => Interfaces.C.unsigned_short, Target => Sync_Code_Kind);
+        (Source => Interfaces.C.unsigned_short, Target => Synchronization_Kind);
       function Convert is new Ada.Unchecked_Conversion
-        (Source => Unsigned_8, Target => Axis_Kind);
+        (Source => Unsigned_64, Target => Absolute_Axis_Kind);
 
       Event : Input_Event;
       Has_Dropped : Boolean := False;
@@ -33,7 +33,7 @@ package body Event_Device.Accelerometers is
             when Absolute =>
                if not Has_Dropped then
                   declare
-                     Code : constant Axis_Kind := Convert (Unsigned_8 (Event.Code));
+                     Code : constant Absolute_Axis_Kind := Convert (Unsigned_64 (Event.Code));
 
                      Resolution_Absolute   : constant := 8192.0;
                      Resolution_Rotational : constant := 1024.0;
@@ -66,7 +66,7 @@ package body Event_Device.Accelerometers is
                end if;
             when Synchronization =>
                declare
-                  Code : constant Sync_Code_Kind := Convert (Event.Code);
+                  Code : constant Synchronization_Kind := Convert (Event.Code);
                begin
                   case Code is
                      when Report =>
