@@ -7,6 +7,55 @@ with Event_Device.Input_Dev;
 
 package body Event_Device is
 
+   subtype Unused_Type is Boolean range False .. False;
+
+   type Internal_Force_Feedback_Features is record
+      Rumble      : Boolean := False;
+      Periodic    : Boolean := False;
+      Constant_V  : Boolean := False;
+      Spring      : Boolean := False;
+      Friction    : Boolean := False;
+      Damper      : Boolean := False;
+      Inertia     : Boolean := False;
+      Ramp        : Boolean := False;
+
+      Square      : Boolean := False;
+      Triangle    : Boolean := False;
+      Sine        : Boolean := False;
+      Saw_Up      : Boolean := False;
+      Saw_Down    : Boolean := False;
+      Custom      : Boolean := False;
+
+      Gain        : Boolean := False;
+      Auto_Center : Boolean := False;
+
+      Unused : Unused_Type := False;
+   end record;
+
+   for Internal_Force_Feedback_Features use record
+      Rumble      at 0 range 80 .. 80;
+      Periodic    at 0 range 81 .. 81;
+      Constant_V  at 0 range 82 .. 82;
+      Spring      at 0 range 83 .. 83;
+      Friction    at 0 range 84 .. 84;
+      Damper      at 0 range 85 .. 85;
+      Inertia     at 0 range 86 .. 86;
+      Ramp        at 0 range 87 .. 87;
+
+      Square      at 0 range 88 .. 88;
+      Triangle    at 0 range 89 .. 89;
+      Sine        at 0 range 90 .. 90;
+      Saw_Up      at 0 range 91 .. 91;
+      Saw_Down    at 0 range 92 .. 92;
+      Custom      at 0 range 93 .. 93;
+
+      Gain        at 0 range 96 .. 96;
+      Auto_Center at 0 range 97 .. 97;
+
+      Unused      at 0 range 98 .. 127;
+   end record;
+   for Internal_Force_Feedback_Features'Size use 128;
+
    function FD (Object : Input_Device) return Integer is
      (C_Streams.ICS.fileno (C_Streams.C_Stream (Object.Event_File_Type)));
 
@@ -167,6 +216,34 @@ package body Event_Device is
    begin
       pragma Assert (Error_Code /= -1);
       return Result;
+   end Features;
+
+   function Features (Object : Input_Device) return Force_Feedback_Features is
+      Result : aliased Internal_Force_Feedback_Features;
+
+      Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (Force_Feedback)), Result'Size),
+         Result'Address);
+   begin
+      pragma Assert (Error_Code /= -1);
+
+      return
+        (Rumble      => Result.Rumble,
+         Periodic    => Result.Periodic,
+         Constant_V  => Result.Constant_V,
+         Spring      => Result.Spring,
+         Friction    => Result.Friction,
+         Damper      => Result.Damper,
+         Inertia     => Result.Inertia,
+         Ramp        => Result.Ramp,
+         Square      => Result.Square,
+         Triangle    => Result.Triangle,
+         Sine        => Result.Sine,
+         Saw_Up      => Result.Saw_Up,
+         Saw_Down    => Result.Saw_Down,
+         Custom      => Result.Custom,
+         Gain        => Result.Gain,
+         Auto_Center => Result.Auto_Center);
    end Features;
 
    function Axis (Object : Input_Device; Axis : Absolute_Axis_Kind) return Axis_Info is

@@ -134,6 +134,24 @@ package Event_Device is
 
    type Sound_Kind is (Click, Bell, Tone);
 
+   type Force_Feedback_Kind is
+     (Rumble,
+      Periodic,
+      Constant_V,
+      Spring,
+      Friction,
+      Damper,
+      Inertia,
+      Ramp,
+      Square,
+      Triangle,
+      Sine,
+      Saw_Up,
+      Saw_Down,
+      Custom,
+      Gain,
+      Auto_Center);
+
    type Synchronization_Features is array (Synchronization_Kind) of Boolean
      with Component_Size => 1;
 
@@ -156,6 +174,9 @@ package Event_Device is
      with Component_Size => 1;
 
    type Sound_Features is array (Sound_Kind) of Boolean
+     with Component_Size => 1;
+
+   type Force_Feedback_Features is array (Force_Feedback_Kind) of Boolean
      with Component_Size => 1;
 
    type Device_Properties is record
@@ -222,6 +243,9 @@ package Event_Device is
      with Pre => Object.Is_Open;
 
    function Features (Object : Input_Device) return Sound_Features
+     with Pre => Object.Is_Open;
+
+   function Features (Object : Input_Device) return Force_Feedback_Features
      with Pre => Object.Is_Open;
 
    function Name (Object : Input_Device) return String
@@ -441,26 +465,25 @@ private
       Tone  => 16#02#);
    for Sound_Kind'Size use 8;
 
-   --  Force-feedback / rumble
---   FF_Rumble    : constant := 16#50#;
---   FF_Periodic  : constant := 16#51#;
---   FF_Constant  : constant := 16#52#;
---   FF_Spring    : constant := 16#53#;
---   FF_Friction  : constant := 16#54#;
---   FF_Damper    : constant := 16#55#;
---   FF_Inertia   : constant := 16#56#;
---   FF_Ramp      : constant := 16#57#;
-
---   FF_Square    : constant := 16#58#;
---   FF_Triangle  : constant := 16#59#;
---   FF_Sine      : constant := 16#5A#;
---   FF_Saw_Up    : constant := 16#5B#;
---   FF_Saw_Down  : constant := 16#5C#;
---   FF_Custom    : constant := 16#5D#;
-
---   FF_Gain        : constant := 16#60#;
---   FF_Auto_Center : constant := 16#61#;
-
---   for Force_Feedback_'Size use 128;
+--   for Force_Feedback_Kind use
+--     (Rumble      => 16#50#,
+--      Periodic    => 16#51#,
+--      Constant_V  => 16#52#,
+--      Spring      => 16#53#,
+--      Friction    => 16#54#,
+--      Damper      => 16#55#,
+--      Inertia     => 16#56#,
+--      Ramp        => 16#57#,
+--
+--      Square      => 16#58#,
+--      Triangle    => 16#59#,
+--      Sine        => 16#5A#,
+--      Saw_Up      => 16#5B#,
+--      Saw_Down    => 16#5C#,
+--      Custom      => 16#5D#,
+--
+--      Gain        => 16#60#,
+--      Auto_Center => 16#61#);
+--   for Force_Feedback_Kind'Size use 64;
 
 end Event_Device;

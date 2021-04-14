@@ -140,7 +140,15 @@ begin
       end if;
       Ada.Text_IO.Put_Line ("  Force-feedback:   " & Events.Force_Feedback'Image);
       if Events.Force_Feedback then
-         null;
+         declare
+            Features : constant Event_Device.Force_Feedback_Features := EF.Features;
+         begin
+            for K in Event_Device.Force_Feedback_Kind'Range loop
+               if Features (K) then
+                  Ada.Text_IO.Put_Line ("    " & K'Image);
+               end if;
+            end loop;
+         end;
       end if;
       Ada.Text_IO.Put_Line ("  Power:            " & Events.Power'Image);
       Ada.Text_IO.Put_Line ("  Feedback Status:  " & Events.Feedback_Status'Image);
