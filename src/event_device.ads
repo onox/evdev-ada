@@ -1,10 +1,8 @@
-private with Interfaces.C;
+with Interfaces.C;
 
 private with Ada.Finalization;
 private with Ada.Streams.Stream_IO;
 private with Ada.Unchecked_Conversion;
-
-limited with Event_Device.Force_Feedbacks;
 
 package Event_Device is
 
@@ -235,7 +233,8 @@ package Event_Device is
      (Object : Input_Device;
       Value  : Force_Feedback_Auto_Center);
 
-   type Force_Feedback_Effect_ID is range -1 .. 95;
+   type Force_Feedback_Effect_ID is range -1 .. 95
+     with Size => Interfaces.C.short'Size;
 
    subtype Uploaded_Force_Feedback_Effect_ID is Force_Feedback_Effect_ID
      range 0 .. Force_Feedback_Effect_ID'Last;
@@ -243,7 +242,7 @@ package Event_Device is
    procedure Play_Force_Feedback_Effect
      (Object     : Input_Device;
       Identifier : Uploaded_Force_Feedback_Effect_ID;
-      Count      : Natural);
+      Count      : Natural := 1);
 
    function Properties (Object : Input_Device) return Device_Properties
      with Pre => Object.Is_Open;
@@ -303,6 +302,8 @@ private
    end record;
 
    overriding procedure Finalize (Object : in out Input_Device);
+
+   function FD (Object : Input_Device) return Integer;
 
    type Unsigned_64 is mod 2 ** 64
      with Size => 64;

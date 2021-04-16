@@ -16,7 +16,8 @@ private package Event_Device.Input_Dev is
       Event : Event_Kind;
       Code  : unsigned_short;
       Value : int;
-   end record;
+   end record
+     with Convention => C;
 
    type Access_Mode is (None, Write, Read, Read_Write);
 
@@ -34,6 +35,15 @@ private package Event_Device.Input_Dev is
      (FD      : Integer;
       Command : IOCTL_Command;
       Value   : System.Address) return Integer;
+
+   function IO_Control
+     (FD      : Integer;
+      Command : IOCTL_Command;
+      Value   : Integer) return Integer;
+
+   procedure Write
+     (FD    : Integer;
+      Event : Input_Dev.Input_Event);
 
 private
 
@@ -61,8 +71,14 @@ private
       Value   : System.Address) return int
    with Import, Convention => C, External_Name => "ioctl";
 
+   function ioctl
+     (FD      : int;
+      Request : unsigned_long;
+      Value   : int) return int
+   with Import, Convention => C, External_Name => "ioctl";
+
    function Convert is new Ada.Unchecked_Conversion
-     (Source => Event_Device.Input_Dev.IOCTL_Command,
+     (Source => IOCTL_Command,
       Target => unsigned);
 
    function IO_Control
@@ -70,5 +86,11 @@ private
       Command : IOCTL_Command;
       Value   : System.Address) return Integer
    is (Integer (ioctl (int (FD), unsigned_long (Convert (Command)), Value)));
+
+   function IO_Control
+     (FD      : Integer;
+      Command : IOCTL_Command;
+      Value   : Integer) return Integer
+   is (Integer (ioctl (int (FD), unsigned_long (Convert (Command)), int (Value))));
 
 end Event_Device.Input_Dev;

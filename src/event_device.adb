@@ -419,7 +419,7 @@ package body Event_Device is
          Code  => FF_Gain_Code,
          Value => Interfaces.C.int (16#FF_FF.00# * Value));
    begin
-      Input_Dev.Input_Event'Write (Object.Event_Stream, Event);
+      Input_Dev.Write (Object.FD, Event);
    end Set_Force_Feedback_Gain;
 
    procedure Set_Force_Feedback_Auto_Center
@@ -434,13 +434,13 @@ package body Event_Device is
          Code  => FF_Auto_Center_Code,
          Value => Interfaces.C.int (16#FF_FF.00# * Value));
    begin
-      Input_Dev.Input_Event'Write (Object.Event_Stream, Event);
+      Input_Dev.Write (Object.FD, Event);
    end Set_Force_Feedback_Auto_Center;
 
    procedure Play_Force_Feedback_Effect
      (Object     : Input_Device;
       Identifier : Uploaded_Force_Feedback_Effect_ID;
-      Count      : Natural)
+      Count      : Natural := 1)
    is
       Event : constant Input_Dev.Input_Event :=
         (Time  => (0, 0),
@@ -448,7 +448,7 @@ package body Event_Device is
          Code  => Interfaces.C.unsigned_short (Identifier),
          Value => Interfaces.C.int (Count));
    begin
-      Input_Dev.Input_Event'Write (Object.Event_Stream, Event);
+      Input_Dev.Write (Object.FD, Event);
    end Play_Force_Feedback_Effect;
 
    function Name (Object : Input_Device) return String is
@@ -469,7 +469,7 @@ package body Event_Device is
 
    procedure Open (Object : in out Input_Device; File_Name : String) is
    begin
-      Open (Object.Event_File_Type, In_File, File_Name);
+      Open (Object.Event_File_Type, Out_File, File_Name);
       Object.Event_Stream := Stream (Object.Event_File_Type);
    exception
       when Ada.IO_Exceptions.Use_Error =>
