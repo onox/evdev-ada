@@ -27,7 +27,7 @@ package body Event_Device.Accelerometers is
       Has_Dropped : Boolean := False;
    begin
       loop
-         Input_Event'Read (Object.Event_Stream, Event);
+         Input_Dev.Read (Object.FD, Event);
 
          case Event.Event is
             when Absolute =>

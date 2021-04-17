@@ -469,8 +469,7 @@ package body Event_Device is
 
    procedure Open (Object : in out Input_Device; File_Name : String) is
    begin
-      Open (Object.Event_File_Type, Out_File, File_Name);
-      Object.Event_Stream := Stream (Object.Event_File_Type);
+      Open (Object.Event_File_Type, In_File, File_Name);
    exception
       when Ada.IO_Exceptions.Use_Error =>
          raise Ada.IO_Exceptions.Use_Error with "Could not open device " & File_Name;

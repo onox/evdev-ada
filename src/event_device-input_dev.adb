@@ -5,6 +5,26 @@ package body Event_Device.Input_Dev is
    type Signed_Size_Type is range -(2 ** (Size_Type'Size - 1)) ..
                                   +(2 ** (Size_Type'Size - 1) - 1);
 
+   procedure Read
+     (FD    : Integer;
+      Event : out Input_Dev.Input_Event)
+   is
+      function C_Read
+        (File_Descriptor : Interfaces.C.int;
+         Buffer          : out Input_Dev.Input_Event;
+         Count           : Size_Type) return Signed_Size_Type
+      with Import, Convention => C, External_Name => "read";
+
+      Error_Code : Signed_Size_Type;
+   begin
+      Error_Code :=
+        C_Read
+          (File_Descriptor => Interfaces.C.int (FD),
+           Buffer          => Event,
+           Count           => Event'Size / System.Storage_Unit);
+      pragma Assert (Error_Code /= -1);
+   end Read;
+
    procedure Write
      (FD    : Integer;
       Event : Input_Dev.Input_Event)

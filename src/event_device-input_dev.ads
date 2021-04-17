@@ -41,6 +41,10 @@ private package Event_Device.Input_Dev is
       Command : IOCTL_Command;
       Value   : Integer) return Integer;
 
+   procedure Read
+     (FD    : Integer;
+      Event : out Input_Dev.Input_Event);
+
    procedure Write
      (FD    : Integer;
       Event : Input_Dev.Input_Event);

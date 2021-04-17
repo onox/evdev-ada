@@ -298,7 +298,6 @@ private
 
    type Input_Device is limited new Ada.Finalization.Limited_Controlled with record
       Event_File_Type : File_Type;
-      Event_Stream    : Stream_Access;
    end record;
 
    overriding procedure Finalize (Object : in out Input_Device);
