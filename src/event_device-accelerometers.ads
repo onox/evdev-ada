@@ -1,4 +1,5 @@
 package Event_Device.Accelerometers is
+   pragma Pure;
 
    type Accel_Unit is delta 2.0 ** (-13) range -(2.0 ** 15) .. +(2.0 ** 15 - 2.0 ** (-13));
    --  32768 / 8192 = 4
@@ -17,12 +18,8 @@ package Event_Device.Accelerometers is
 
    type Accelerometer is limited new Input_Device with private;
 
-   overriding
-   procedure Open (Object : in out Accelerometer; File_Name : String)
-     with Post => Object.Is_Open and Object.Properties.Accelerometer;
-
    procedure Read (Object : Accelerometer; Value : out Measurement)
-     with Pre => Object.Is_Open;
+     with Pre => Object.Is_Open and Object.Properties.Accelerometer;
 
 private
 

@@ -17,7 +17,6 @@ procedure Main is
 begin
    EF.Open (Ada.Command_Line.Argument (1));
 
-   Ada.Text_IO.Put_Line ("file name:   '" & EF.File_Name & "'");
    Ada.Text_IO.Put_Line ("device name: '" & EF.Name & "'");
    Ada.Text_IO.Put_Line ("location:    '" & EF.Location & "'");
    Ada.Text_IO.Put_Line ("uniq ID:     '" & EF.Unique_ID & "'");
@@ -201,20 +200,20 @@ begin
                        Interval => FF.From_Duration (0.0)),
          Replay    => (Length      => FF.From_Duration (8.0),
                        Start_Delay => FF.From_Duration (0.0)),
-         Effect => (
-           Kind => Rumble,
---           Periodic_Effect => (Waveform  => FF.Sine,
---                             Period    => FF.From_Duration (1.0),
---                             Magnitude => Interfaces.C.short'Last,
---                             Offset    => 0,
---                             Phase     => 0,
---                             Envelope  => (Attack_Length => FF.From_Duration (4.0),
---                                           Attack_Level  => 0,
---                                           Fade_Length   => FF.From_Duration (2.0),
---                                           Fade_Level    => 0),
---                             others => <>),
-           Rumble_Effect => (Strong_Magnitude => 0,
-                             Weak_Magnitude   => Event_Device.Unsigned_16'Last)
+         Effect =>
+           (Kind => Rumble,
+--            Periodic_Effect => (Waveform  => FF.Sine,
+--                                Period    => FF.From_Duration (1.0),
+--                                Magnitude => Interfaces.C.short'Last,
+--                                Offset    => 0,
+--                                Phase     => 0,
+--                                Envelope  => (Attack_Length => FF.From_Duration (4.0),
+--                                              Attack_Level  => 0,
+--                                              Fade_Length   => FF.From_Duration (2.0),
+--                                              Fade_Level    => 0),
+--                                others => <>)
+            Rumble_Effect => (Strong_Magnitude => 0,
+                              Weak_Magnitude   => Event_Device.Unsigned_16'Last)
          ));
    begin
       EF.Set_Force_Feedback_Gain (1.0);
@@ -233,6 +232,7 @@ begin
       FF.Remove_Force_Feedback_Effect (EF, Effect.ID);
       Ada.Text_IO.Put_Line ("removed effect " & Effect.ID'Image);
    end;
+
 --   loop
 --      EF.Read (Item);
 --      declare

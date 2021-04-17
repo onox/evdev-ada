@@ -3,6 +3,7 @@ with System;
 private with Ada.Unchecked_Conversion;
 
 private package Event_Device.Input_Dev is
+   pragma Pure;
 
    use Interfaces.C;
 
@@ -32,22 +33,26 @@ private package Event_Device.Input_Dev is
    end record;
 
    function IO_Control
-     (FD      : Integer;
+     (FD      : File_Descriptor;
       Command : IOCTL_Command;
       Value   : System.Address) return Integer;
 
    function IO_Control
-     (FD      : Integer;
+     (FD      : File_Descriptor;
       Command : IOCTL_Command;
       Value   : Integer) return Integer;
 
    procedure Read
-     (FD    : Integer;
+     (FD    : File_Descriptor;
       Event : out Input_Dev.Input_Event);
 
    procedure Write
-     (FD    : Integer;
+     (FD    : File_Descriptor;
       Event : Input_Dev.Input_Event);
+
+   function Open (File_Path : String) return File_Descriptor;
+
+   procedure Close (FD : File_Descriptor);
 
 private
 
@@ -86,13 +91,13 @@ private
       Target => unsigned);
 
    function IO_Control
-     (FD      : Integer;
+     (FD      : File_Descriptor;
       Command : IOCTL_Command;
       Value   : System.Address) return Integer
    is (Integer (ioctl (int (FD), unsigned_long (Convert (Command)), Value)));
 
    function IO_Control
-     (FD      : Integer;
+     (FD      : File_Descriptor;
       Command : IOCTL_Command;
       Value   : Integer) return Integer
    is (Integer (ioctl (int (FD), unsigned_long (Convert (Command)), int (Value))));

@@ -1,8 +1,5 @@
 with System;
 
-with Ada.IO_Exceptions;
-with Ada.Streams.Stream_IO.C_Streams;
-
 with Event_Device.Input_Dev;
 
 package body Event_Device is
@@ -145,12 +142,7 @@ package body Event_Device is
    end record;
    for Internal_Force_Feedback_Features'Size use 128;
 
-   function FD (Object : Input_Device) return Integer is
-     (C_Streams.ICS.fileno (C_Streams.C_Stream (Object.Event_File_Type)));
-
    function Hex_Image (Value : Unsigned_8) return String is
-      use Ada.Streams;
-
       Hex : constant array (Unsigned_8 range 0 .. 15) of Character := "0123456789abcdef";
    begin
       return Hex (Value / 16) & Hex (Value mod 16);
@@ -461,23 +453,19 @@ package body Event_Device is
       return Result (1 .. Length);
    end Name;
 
-   function File_Name (Object : Input_Device) return String is
-     (Name (Object.Event_File_Type));
-
    function Is_Open (Object : Input_Device) return Boolean is
-     (Is_Open (Object.Event_File_Type));
+     (Object.Open);
 
    procedure Open (Object : in out Input_Device; File_Name : String) is
    begin
-      Open (Object.Event_File_Type, In_File, File_Name);
-   exception
-      when Ada.IO_Exceptions.Use_Error =>
-         raise Ada.IO_Exceptions.Use_Error with "Could not open device " & File_Name;
+      Object.FD := Input_Dev.Open (File_Name);
+      Object.Open := True;
    end Open;
 
    procedure Close (Object : in out Input_Device) is
    begin
-      Close (Object.Event_File_Type);
+      Input_Dev.Close (Object.FD);
+      Object.Open := False;
    end Close;
 
    overriding procedure Finalize (Object : in out Input_Device) is

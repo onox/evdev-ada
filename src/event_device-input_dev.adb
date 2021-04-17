@@ -1,3 +1,5 @@
+with Ada.IO_Exceptions;
+
 package body Event_Device.Input_Dev is
 
    subtype Size_Type is Interfaces.C.size_t;
@@ -5,44 +7,105 @@ package body Event_Device.Input_Dev is
    type Signed_Size_Type is range -(2 ** (Size_Type'Size - 1)) ..
                                   +(2 ** (Size_Type'Size - 1) - 1);
 
+   type Access_Flag is (Read_Only, Write_Only, Read_Write);
+
+   for Access_Flag use
+     (Read_Only  => 0,
+      Write_Only => 1,
+      Read_Write => 2);
+   for Access_Flag'Size use int'Size;
+
+   function C_Read
+     (File_Descriptor : Interfaces.C.int;
+      Buffer          : out Input_Event;
+      Count           : Size_Type) return Signed_Size_Type
+   with Import, Convention => C, External_Name => "read";
+
+   function C_Write
+     (File_Descriptor : Interfaces.C.int;
+      Buffer          : Input_Event;
+      Count           : Size_Type) return Signed_Size_Type
+   with Import, Convention => C, External_Name => "write";
+
+   function C_Close
+     (File_Descriptor : Interfaces.C.int) return Interfaces.C.int
+   with Import, Convention => C, External_Name => "close";
+
+   function C_Open
+     (Path_Name : String;
+      Flags     : Access_Flag) return int
+   with Import, Convention => C, External_Name => "open";
+
+   ----------------------------------------------------------------------------
+
    procedure Read
-     (FD    : Integer;
+     (FD    : File_Descriptor;
       Event : out Input_Dev.Input_Event)
    is
-      function C_Read
-        (File_Descriptor : Interfaces.C.int;
-         Buffer          : out Input_Dev.Input_Event;
-         Count           : Size_Type) return Signed_Size_Type
-      with Import, Convention => C, External_Name => "read";
+      Count : constant Size_Type := Event'Size / System.Storage_Unit;
 
-      Error_Code : Signed_Size_Type;
+      Bytes_Read : Signed_Size_Type;
    begin
-      Error_Code :=
+      Bytes_Read :=
         C_Read
           (File_Descriptor => Interfaces.C.int (FD),
            Buffer          => Event,
-           Count           => Event'Size / System.Storage_Unit);
-      pragma Assert (Error_Code /= -1);
+           Count           => Count);
+      pragma Assert (Bytes_Read >= -1);
+
+      case Bytes_Read is
+         when Signed_Size_Type'First .. -1 =>
+            raise Ada.IO_Exceptions.Device_Error;
+         when 0 =>
+            raise Ada.IO_Exceptions.End_Error;
+         when others =>
+            if Size_Type (Bytes_Read) /= Count then
+               raise Ada.IO_Exceptions.Data_Error;
+            end if;
+      end case;
    end Read;
 
    procedure Write
-     (FD    : Integer;
+     (FD    : File_Descriptor;
       Event : Input_Dev.Input_Event)
    is
-      function C_Write
-        (File_Descriptor : Interfaces.C.int;
-         Buffer          : Input_Dev.Input_Event;
-         Count           : Size_Type) return Signed_Size_Type
-      with Import, Convention => C, External_Name => "write";
+      Count : constant Size_Type := Event'Size / System.Storage_Unit;
 
-      Error_Code : Signed_Size_Type;
+      Bytes_Written : Signed_Size_Type;
    begin
-      Error_Code :=
+      Bytes_Written :=
         C_Write
           (File_Descriptor => Interfaces.C.int (FD),
            Buffer          => Event,
-           Count           => Event'Size / System.Storage_Unit);
-      pragma Assert (Error_Code /= -1);
+           Count           => Count);
+      pragma Assert (Bytes_Written >= -1);
+
+      case Bytes_Written is
+         when Signed_Size_Type'First .. -1 =>
+            raise Ada.IO_Exceptions.Device_Error;
+         when others =>
+            if Size_Type (Bytes_Written) /= Count then
+               raise Ada.IO_Exceptions.Data_Error;
+            end if;
+      end case;
    end Write;
+
+   function Open (File_Path : String) return File_Descriptor is
+      FD : constant Integer := Integer (C_Open (File_Path, Read_Write));
+   begin
+      if FD = -1 then
+         raise Ada.IO_Exceptions.Use_Error with "Could not open device " & File_Path;
+      else
+         return File_Descriptor (FD);
+      end if;
+   end Open;
+
+   procedure Close (FD : File_Descriptor) is
+      Error_Code : constant Interfaces.C.int := C_Close (Interfaces.C.int (FD));
+   begin
+      if Error_Code = -1 then
+         raise Ada.IO_Exceptions.Device_Error;
+      end if;
+   end Close;
 
 end Event_Device.Input_Dev;

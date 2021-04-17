@@ -1,10 +1,10 @@
 with Interfaces.C;
 
 private with Ada.Finalization;
-private with Ada.Streams.Stream_IO;
 private with Ada.Unchecked_Conversion;
 
 package Event_Device is
+   pragma Pure;
 
    type Unsigned_8 is mod 2 ** 8
      with Size => 8;
@@ -18,11 +18,13 @@ package Event_Device is
 
    type Device_ID is record
       Bus_Type, Vendor, Product, Version : Unsigned_16;
-   end record;
+   end record
+     with Convention => C_Pass_By_Copy;
 
    type Axis_Info is record
       Value, Minimum, Maximum, Fuzz, Flat, Resolution : Integer;
-   end record;
+   end record
+     with Convention => C_Pass_By_Copy;
 
    type Event_Kind is
      (Synchronization,
@@ -196,6 +198,7 @@ package Event_Device is
       Power           : Boolean := False;
       Feedback_Status : Boolean := False;
    end record;
+   --  TODO Enum + array?
 
    type Input_Device is tagged limited private;
 
@@ -279,9 +282,6 @@ package Event_Device is
 
    ----------------------------------------------------------------------------
 
-   function File_Name (Object : Input_Device) return String
-     with Pre => Object.Is_Open;
-
    function Is_Open (Object : Input_Device) return Boolean;
 
    procedure Open (Object : in out Input_Device; File_Name : String)
@@ -294,15 +294,14 @@ package Event_Device is
 
 private
 
-   use Ada.Streams.Stream_IO;
+   type File_Descriptor is new Integer;
 
    type Input_Device is limited new Ada.Finalization.Limited_Controlled with record
-      Event_File_Type : File_Type;
+      FD   : File_Descriptor;
+      Open : Boolean := False;
    end record;
 
    overriding procedure Finalize (Object : in out Input_Device);
-
-   function FD (Object : Input_Device) return Integer;
 
    type Unsigned_64 is mod 2 ** 64
      with Size => 64;
@@ -357,7 +356,7 @@ private
       Dropped   => 3);
    for Synchronization_Kind'Size use 16;
 
-   --   for Key_'Size use 768;
+   --  FIXME for Key_'Size use 768;
 
    for Relative_Axis_Kind use
      (X                         => 16#00#,

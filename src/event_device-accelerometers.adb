@@ -7,12 +7,6 @@ with Event_Device.Input_Dev;
 
 package body Event_Device.Accelerometers is
 
-   overriding
-   procedure Open (Object : in out Accelerometer; File_Name : String) is
-   begin
-      Input_Device (Object).Open (File_Name);
-   end Open;
-
    procedure Read (Object : Accelerometer; Value : out Measurement) is
       use Event_Device.Input_Dev;
       use type Interfaces.C.long;
