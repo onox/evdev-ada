@@ -1,19 +1,14 @@
 with Interfaces.C;
 
 with Ada.Command_Line;
---  with Ada.Numerics.Long_Long_Elementary_Functions;
+with Ada.Numerics.Long_Long_Elementary_Functions;
 with Ada.Text_IO;
 
 with Event_Device.Accelerometers;
 with Event_Device.Force_Feedbacks;
 
 procedure Main is
---   package LLEF renames Ada.Numerics.Long_Long_Elementary_Functions;
---   package LLF_IO is new Ada.Text_IO.Float_IO (Long_Long_Float);
-
    EF : Event_Device.Input_Device;
---   EF   : Event_Device.Accelerometers.Accelerometer;
---   Item : Event_Device.Accelerometers.Measurement;
 begin
    EF.Open (Ada.Command_Line.Argument (1));
 
@@ -55,7 +50,15 @@ begin
       end if;
       Ada.Text_IO.Put_Line ("  Keys:             " & Events.Keys'Image);
       if Events.Keys then
-         null;
+         declare
+            Features : constant Event_Device.Key_Features := EF.Features;
+         begin
+            for K in Event_Device.Key_Kind'Range loop
+               if Features (K) then
+                  Ada.Text_IO.Put_Line ("    " & K'Image);
+               end if;
+            end loop;
+         end;
       end if;
       Ada.Text_IO.Put_Line ("  Relative axes:    " & Events.Relative_Axes'Image);
       if Events.Relative_Axes then
@@ -183,25 +186,26 @@ begin
 
    Ada.Text_IO.Put_Line ("Force feedback effects: " & EF.Force_Feedback_Effects'Image);
 
-   declare
-      package FF renames Event_Device.Force_Feedbacks;
+   if EF.Events.Force_Feedback and EF.Force_Feedback_Effects > 0 then
+      declare
+         package FF renames Event_Device.Force_Feedbacks;
 
-      use all type FF.Force_Feedback_Effect_Kind;
-      use all type FF.Direction_Kind;
-      use type Event_Device.Force_Feedback_Effect_ID;
-      use type Event_Device.Unsigned_16;
-      use type Interfaces.C.short;
+         use all type FF.Force_Feedback_Effect_Kind;
+         use all type FF.Direction_Kind;
+         use type Event_Device.Force_Feedback_Effect_ID;
+         use type Event_Device.Unsigned_16;
+         use type Interfaces.C.short;
 
-      Effect : aliased FF.Force_Feedback_Effect :=
-        (Kind      => Rumble,
-         ID        => -1,
-         Direction => Down,
-         Trigger   => (Button   => 0,
-                       Interval => FF.From_Duration (0.0)),
-         Replay    => (Length      => FF.From_Duration (8.0),
-                       Start_Delay => FF.From_Duration (0.0)),
-         Effect =>
-           (Kind => Rumble,
+         Effect : aliased FF.Force_Feedback_Effect :=
+           (Kind      => Rumble,
+            ID        => -1,
+            Direction => Down,
+            Trigger   => (Button   => 0,
+                          Interval => FF.From_Duration (0.0)),
+            Replay    => (Length      => FF.From_Duration (8.0),
+                          Start_Delay => FF.From_Duration (0.0)),
+            Effect =>
+              (Kind => Rumble,
 --            Periodic_Effect => (Waveform  => FF.Sine,
 --                                Period    => FF.From_Duration (1.0),
 --                                Magnitude => Interfaces.C.short'Last,
@@ -212,42 +216,84 @@ begin
 --                                              Fade_Length   => FF.From_Duration (2.0),
 --                                              Fade_Level    => 0),
 --                                others => <>)
-            Rumble_Effect => (Strong_Magnitude => 0,
-                              Weak_Magnitude   => Event_Device.Unsigned_16'Last)
-         ));
-   begin
-      EF.Set_Force_Feedback_Gain (1.0);
+               Rumble_Effect => (Strong_Magnitude => 0,
+                                 Weak_Magnitude   => Event_Device.Unsigned_16'Last)
+            ));
+      begin
+         EF.Set_Force_Feedback_Gain (1.0);
 
-      FF.Upload_Force_Feedback_Effect (EF, Effect);
-      Ada.Text_IO.Put_Line ("uploaded effect " & Effect.ID'Image);
+         FF.Upload_Force_Feedback_Effect (EF, Effect);
+         Ada.Text_IO.Put_Line ("uploaded effect " & Effect.ID'Image);
 
-      delay 1.0;
-      EF.Play_Force_Feedback_Effect (Effect.ID, Count => 1);
-      Ada.Text_IO.Put_Line ("playing effect " & Effect.ID'Image &
-        " for " & FF.Image (Effect.Replay.Length));
+         delay 0.5;
+         EF.Play_Force_Feedback_Effect (Effect.ID, Count => 1);
+         Ada.Text_IO.Put_Line ("playing effect " & Effect.ID'Image &
+           " for " & FF.Image (Effect.Replay.Length));
 
-      delay 9.0;
-      Ada.Text_IO.Put_Line ("stopped playing effect");
+         delay 2.0;
+         Ada.Text_IO.Put_Line ("stopped playing effect");
 
-      FF.Remove_Force_Feedback_Effect (EF, Effect.ID);
-      Ada.Text_IO.Put_Line ("removed effect " & Effect.ID'Image);
-   end;
+         FF.Remove_Force_Feedback_Effect (EF, Effect.ID);
+         Ada.Text_IO.Put_Line ("removed effect " & Effect.ID'Image);
+      end;
+   end if;
 
---   loop
---      EF.Read (Item);
---      declare
---         use Event_Device.Accelerometers;
---
---         V1 : constant Accel_Unit := Item.X * Item.X + Item.Y * Item.Y + Item.Z * Item.Z;
---         L : constant Long_Long_Float :=
---           1.0 - LLEF.Sqrt (Long_Long_Float (V1));
---
---         L_I : String := "-0.00000000";
---      begin
---         LLF_IO.Put (L_I, Item => L, Aft => 8, Exp => 0);
---         Ada.Text_IO.Put_Line
---           (Item.Time'Image & " A " & Item.X'Image & Item.Y'Image & Item.Z'Image & L_I &
---            "   " & Item.Rx'Image & Item.Ry'Image & Item.Rz'Image);
---      end;
---   end loop;
+--   if EF.Properties.Accelerometer then
+   if EF.Events.Absolute_Axes then
+      declare
+         package LLEF renames Ada.Numerics.Long_Long_Elementary_Functions;
+         package LLF_IO is new Ada.Text_IO.Float_IO (Long_Long_Float);
+
+         Item : Event_Device.Accelerometers.State;
+         Features : constant Event_Device.Absolute_Axis_Features := EF.Features;
+
+         use Event_Device.Accelerometers;
+      begin
+         loop
+            Event_Device.Accelerometers.Read (EF, Features, Item);
+            declare
+               use all type Event_Device.Absolute_Axis_Kind;
+
+               V1 : constant Axis_Value :=
+                 Item.Absolute (X) * Item.Absolute (X) +
+                 Item.Absolute (Y) * Item.Absolute (Y) +
+                 Item.Absolute (Z) * Item.Absolute (Z);
+               L : constant Long_Long_Float :=
+                 1.0 - LLEF.Sqrt (Long_Long_Float (V1));
+
+               L_I : String := "-0.00000000";
+            begin
+               LLF_IO.Put (L_I, Item => L, Aft => 8, Exp => 0);
+               if False then
+                  Ada.Text_IO.Put_Line
+                    (Item.Time'Image & ": " &
+                     Item.Absolute (X)'Image &
+                     Item.Absolute (Y)'Image &
+                     Item.Absolute (Z)'Image & L_I &
+                     "   " &
+                     Item.Absolute (Rx)'Image &
+                     Item.Absolute (Ry)'Image &
+                     Item.Absolute (Rz)'Image &
+                     "   " &
+                     Item.Absolute (Hat_0X)'Image &
+                     Item.Absolute (Hat_0Y)'Image);
+               end if;
+            end;
+
+            declare
+               Pressed_Keys : Natural := 0;
+            begin
+               for K in Event_Device.Key_Kind'Range loop
+                  if Item.Keys (K) = Pressed then
+                     Ada.Text_IO.Put (" " & K'Image);
+                     Pressed_Keys := Pressed_Keys + 1;
+                  end if;
+               end loop;
+               if Pressed_Keys > 0 then
+                  Ada.Text_IO.New_Line;
+               end if;
+            end;
+         end loop;
+      end;
+   end if;
 end Main;

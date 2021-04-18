@@ -1,28 +1,34 @@
 package Event_Device.Accelerometers is
-   pragma Pure;
+   pragma Preelaborate;
 
-   type Accel_Unit is delta 2.0 ** (-13) range -(2.0 ** 15) .. +(2.0 ** 15 - 2.0 ** (-13));
-   --  32768 / 8192 = 4
-   type Gyro_Unit is delta 2.0 ** (-10) range -(2.0 ** 21) .. +(2.0 ** 21 - 2.0 ** (-10));
-   --  2097152 / 1024 = 2048
+   type Key_State is (Released, Pressed);
 
-   type Measurement is record
-      X, Y, Z    : Accel_Unit := 0.0;
-      --  Linear acceleration
+   type Axis_Value is delta 2.0 ** (-16) range -(2.0 ** 15) .. +(2.0 ** 15 - 2.0 ** (-16));
 
-      Rx, Ry, Rz : Gyro_Unit  := 0.0;
-      --  Angular velocity
+   type Key_Values is array (Key_Kind) of Key_State;
 
-      Time       : Duration   := 0.0;
+   type Relative_Axis_Values is array (Relative_Axis_Kind) of Integer;
+   type Absolute_Axis_Values is array (Absolute_Axis_Kind) of Axis_Value;
+
+   type State is record
+      Keys :     Key_Values           := (others => Released);
+      Relative : Relative_Axis_Values := (others => 0);
+      Absolute : Absolute_Axis_Values := (others => 0.0);
+      Time     : Duration    := 0.0;
    end record;
 
-   type Accelerometer is limited new Input_Device with private;
-
-   procedure Read (Object : Accelerometer; Value : out Measurement)
-     with Pre => Object.Is_Open and Object.Properties.Accelerometer;
-
-private
-
-   type Accelerometer is limited new Input_Device with null record;
+   procedure Read
+     (Object : Input_Device;
+      Axes   : Absolute_Axis_Features;
+      Value  : out State)
+   with Pre => Object.Is_Open;
+   --  Read keys, relative, and absolute axes of device
+   --
+   --  Resolution of accelerometer and gyro axes:
+   --
+   --            Accelerometer  No accelerometer
+   --            -------------  --------
+   --  X/Y/Z:    units/g        units/mm
+   --  Rx/Ry/Rz: units/deg/s    units/rad
 
 end Event_Device.Accelerometers;

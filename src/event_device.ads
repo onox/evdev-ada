@@ -42,6 +42,23 @@ package Event_Device is
 
    type Synchronization_Kind is (Report, Config, MT_Report, Dropped);
 
+   type Key_Info_Kind is
+     (Button_South,
+      Button_East,
+      Button_North,
+      Button_West,
+      Button_Trigger_Left_1,
+      Button_Trigger_Right_1,
+      Button_Trigger_Left_2,
+      Button_Trigger_Right_2,
+      Button_Select,
+      Button_Start,
+      Button_Mode,
+      Button_Thumb_Left,
+      Button_Thumb_Right);
+
+   type Key_Kind is new Key_Info_Kind;
+
    type Relative_Axis_Kind is
      (X,
       Y,
@@ -150,6 +167,9 @@ package Event_Device is
    type Synchronization_Features is array (Synchronization_Kind) of Boolean
      with Component_Size => 1;
 
+   type Key_Features is array (Key_Kind) of Boolean
+     with Component_Size => 1;
+
    type Relative_Axis_Features is array (Relative_Axis_Kind) of Boolean
      with Component_Size => 1;
 
@@ -256,6 +276,9 @@ package Event_Device is
    function Features (Object : Input_Device) return Synchronization_Features
      with Pre => Object.Is_Open;
 
+   function Features (Object : Input_Device) return Key_Features
+     with Pre => Object.Is_Open;
+
    function Features (Object : Input_Device) return Relative_Axis_Features
      with Pre => Object.Is_Open;
 
@@ -356,7 +379,23 @@ private
       Dropped   => 3);
    for Synchronization_Kind'Size use 16;
 
-   --  FIXME for Key_'Size use 768;
+   for Key_Info_Kind use
+     (Button_South           => 16#130#,
+      Button_East            => 16#131#,
+      Button_North           => 16#133#,
+      Button_West            => 16#134#,
+      Button_Trigger_Left_1  => 16#136#,
+      Button_Trigger_Right_1 => 16#137#,
+      Button_Trigger_Left_2  => 16#138#,
+      Button_Trigger_Right_2 => 16#139#,
+      Button_Select          => 16#13A#,
+      Button_Start           => 16#13B#,
+      Button_Mode            => 16#13C#,
+      Button_Thumb_Left      => 16#13D#,
+      Button_Thumb_Right     => 16#13E#);
+   for Key_Info_Kind'Size use 16;
+
+   for Key_Kind'Size use Key_Info_Kind'Size;
 
    for Relative_Axis_Kind use
      (X                         => 16#00#,
@@ -372,6 +411,7 @@ private
       Wheel_High_Res            => 16#0B#,
       Horizontal_Wheel_High_Res => 16#0C#);
    for Relative_Axis_Kind'Size use 16;
+   --  TODO IS this going to work because of the missing 0x0A?
 
    --  Representation clause for Absolute_Axis_Info_Kind is needed
    --  for function Axis
@@ -419,7 +459,7 @@ private
       MT_Tool_Y        => 16#3D#);
    for Absolute_Axis_Info_Kind'Size use 64;
 
-   for Absolute_Axis_Kind'Size use 64;
+   for Absolute_Axis_Kind'Size use Absolute_Axis_Info_Kind'Size;
 
    for Switch_Kind use
      (Lid                  => 16#00#,

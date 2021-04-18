@@ -6,6 +6,43 @@ package body Event_Device is
 
    subtype Unused_Type is Boolean range False .. False;
 
+   type Internal_Key_Features is record
+      Button_South           : Boolean := False;
+      Button_East            : Boolean := False;
+      Button_North           : Boolean := False;
+      Button_West            : Boolean := False;
+      Button_Trigger_Left_1  : Boolean := False;
+      Button_Trigger_Right_1 : Boolean := False;
+      Button_Trigger_Left_2  : Boolean := False;
+      Button_Trigger_Right_2 : Boolean := False;
+      Button_Select          : Boolean := False;
+      Button_Start           : Boolean := False;
+      Button_Mode            : Boolean := False;
+      Button_Thumb_Left      : Boolean := False;
+      Button_Thumb_Right     : Boolean := False;
+
+      Unused : Unused_Type := False;
+   end record;
+
+   for Internal_Key_Features use record
+      Button_South           at 0 range 304 .. 304;
+      Button_East            at 0 range 305 .. 305;
+      Button_North           at 0 range 307 .. 307;
+      Button_West            at 0 range 308 .. 308;
+      Button_Trigger_Left_1  at 0 range 310 .. 310;
+      Button_Trigger_Right_1 at 0 range 311 .. 311;
+      Button_Trigger_Left_2  at 0 range 312 .. 312;
+      Button_Trigger_Right_2 at 0 range 313 .. 313;
+      Button_Select          at 0 range 314 .. 314;
+      Button_Start           at 0 range 315 .. 315;
+      Button_Mode            at 0 range 316 .. 316;
+      Button_Thumb_Left      at 0 range 317 .. 317;
+      Button_Thumb_Right     at 0 range 318 .. 318;
+
+      Unused                 at 0 range 319 .. 319;
+   end record;
+   for Internal_Key_Features'Size use 320;
+
    type Internal_Absolute_Axis_Features is record
       X              : Boolean := False;
       Y              : Boolean := False;
@@ -196,7 +233,7 @@ package body Event_Device is
       Result : aliased Device_Properties;
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
-        (Object.FD, (Read, 'E', 16#09#, Result'Size), Result'Address);
+        (Object.FD, (Read, 'E', 16#09#, Result'Size / System.Storage_Unit), Result'Address);
    begin
       pragma Assert (Error_Code /= -1);
       return Result;
@@ -206,7 +243,7 @@ package body Event_Device is
       Result : aliased Device_Events;
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
-        (Object.FD, (Read, 'E', 16#20#, Result'Size), Result'Address);
+        (Object.FD, (Read, 'E', 16#20#, Result'Size / System.Storage_Unit), Result'Address);
    begin
       pragma Assert (Error_Code /= -1);
       return Result;
@@ -219,18 +256,46 @@ package body Event_Device is
       Result : aliased Synchronization_Features;
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
-        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (Synchronization)), Result'Size),
+        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (Synchronization)),
+         Result'Size / System.Storage_Unit),
          Result'Address);
    begin
       pragma Assert (Error_Code /= -1);
       return Result;
    end Features;
 
+   function Features (Object : Input_Device) return Key_Features is
+      Result : aliased Internal_Key_Features;
+
+      Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (Key)),
+         Result'Size / System.Storage_Unit),
+         Result'Address);
+   begin
+      pragma Assert (Error_Code /= -1);
+
+      return
+        (Button_South           => Result.Button_South,
+         Button_East            => Result.Button_East,
+         Button_North           => Result.Button_North,
+         Button_West            => Result.Button_West,
+         Button_Trigger_Left_1  => Result.Button_Trigger_Left_1,
+         Button_Trigger_Right_1 => Result.Button_Trigger_Right_1,
+         Button_Trigger_Left_2  => Result.Button_Trigger_Left_2,
+         Button_Trigger_Right_2 => Result.Button_Trigger_Right_2,
+         Button_Select          => Result.Button_Select,
+         Button_Start           => Result.Button_Start,
+         Button_Mode            => Result.Button_Mode,
+         Button_Thumb_Left      => Result.Button_Thumb_Left,
+         Button_Thumb_Right     => Result.Button_Thumb_Right);
+   end Features;
+
    function Features (Object : Input_Device) return Relative_Axis_Features is
       Result : aliased Relative_Axis_Features;
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
-        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (Relative)), Result'Size),
+        (Object.FD,
+         (Read, 'E', 16#20# + Unsigned_8 (Convert (Relative)), Result'Size / System.Storage_Unit),
          Result'Address);
    begin
       pragma Assert (Error_Code /= -1);
@@ -241,7 +306,8 @@ package body Event_Device is
       Result : aliased Internal_Absolute_Axis_Features;
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
-        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (Absolute)), Result'Size),
+        (Object.FD,
+         (Read, 'E', 16#20# + Unsigned_8 (Convert (Absolute)), Result'Size / System.Storage_Unit),
          Result'Address);
    begin
       pragma Assert (Error_Code /= -1);
@@ -294,7 +360,8 @@ package body Event_Device is
       Result : aliased Switch_Features;
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
-        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (Switch)), Result'Size),
+        (Object.FD,
+         (Read, 'E', 16#20# + Unsigned_8 (Convert (Switch)), Result'Size / System.Storage_Unit),
          Result'Address);
    begin
       pragma Assert (Error_Code /= -1);
@@ -305,7 +372,9 @@ package body Event_Device is
       Result : aliased Miscellaneous_Features;
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
-        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (Miscellaneous)), Result'Size),
+        (Object.FD,
+         (Read, 'E', 16#20# + Unsigned_8 (Convert (Miscellaneous)),
+          Result'Size / System.Storage_Unit),
          Result'Address);
    begin
       pragma Assert (Error_Code /= -1);
@@ -316,7 +385,8 @@ package body Event_Device is
       Result : aliased LED_Features;
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
-        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (LED)), Result'Size),
+        (Object.FD,
+         (Read, 'E', 16#20# + Unsigned_8 (Convert (LED)), Result'Size / System.Storage_Unit),
          Result'Address);
    begin
       pragma Assert (Error_Code /= -1);
@@ -327,7 +397,8 @@ package body Event_Device is
       Result : aliased Repeat_Features;
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
-        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (Repeat)), Result'Size),
+        (Object.FD,
+         (Read, 'E', 16#20# + Unsigned_8 (Convert (Repeat)), Result'Size / System.Storage_Unit),
          Result'Address);
    begin
       pragma Assert (Error_Code /= -1);
@@ -338,7 +409,8 @@ package body Event_Device is
       Result : aliased Sound_Features;
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
-        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (Sound)), Result'Size),
+        (Object.FD,
+         (Read, 'E', 16#20# + Unsigned_8 (Convert (Sound)), Result'Size / System.Storage_Unit),
          Result'Address);
    begin
       pragma Assert (Error_Code /= -1);
@@ -349,7 +421,9 @@ package body Event_Device is
       Result : aliased Internal_Force_Feedback_Features;
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
-        (Object.FD, (Read, 'E', 16#20# + Unsigned_8 (Convert (Force_Feedback)), Result'Size),
+        (Object.FD,
+         (Read, 'E', 16#20# + Unsigned_8 (Convert (Force_Feedback)),
+          Result'Size / System.Storage_Unit),
          Result'Address);
    begin
       pragma Assert (Error_Code /= -1);
@@ -382,7 +456,8 @@ package body Event_Device is
         (Source => Absolute_Axis_Info_Kind, Target => Unsigned_64);
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
-        (Object.FD, (Read, 'E', 16#40# + Unsigned_8 (Convert (Axis)), Result'Size),
+        (Object.FD,
+         (Read, 'E', 16#40# + Unsigned_8 (Convert (Axis)), Result'Size / System.Storage_Unit),
          Result'Address);
    begin
       pragma Assert (Error_Code /= -1);
