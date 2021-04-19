@@ -221,6 +221,8 @@ package Event_Device is
       Feedback_Status : Boolean := False;
    end record;
 
+   ----------------------------------------------------------------------------
+
    type Input_Device is tagged limited private;
 
    function Name (Object : Input_Device) return String
@@ -237,8 +239,40 @@ package Event_Device is
 
    ----------------------------------------------------------------------------
 
+   type Key_State is (Released, Pressed);
+
+   type Axis_Value is delta 2.0 ** (-16) range -(2.0 ** 15) .. +(2.0 ** 15 - 2.0 ** (-16));
+
+   type Key_Values is array (Key_Kind) of Key_State;
+
+   type Relative_Axis_Values is array (Relative_Axis_Kind) of Integer;
+   type Absolute_Axis_Values is array (Absolute_Axis_Kind) of Axis_Value;
+
+   type State is record
+      Keys     : Key_Values           := (others => Released);
+      Relative : Relative_Axis_Values := (others => 0);
+      Absolute : Absolute_Axis_Values := (others => 0.0);
+      Time     : Duration             := 0.0;
+   end record;
+
+   procedure Read
+     (Object : Input_Device;
+      Axes   : Absolute_Axis_Features;
+      Value  : out State)
+   with Pre => Object.Is_Open;
+   --  Read keys, relative, and absolute axes of device
+   --
+   --  Resolution of accelerometer and gyro axes:
+   --
+   --            Accelerometer  No accelerometer
+   --            -------------  --------
+   --  X/Y/Z:    units/g        units/mm
+   --  Rx/Ry/Rz: units/deg/s    units/rad
+
    function Axis (Object : Input_Device; Axis : Absolute_Axis_Kind) return Axis_Info
      with Pre => Object.Is_Open;
+
+   ----------------------------------------------------------------------------
 
    function Force_Feedback_Effects (Object : Input_Device) return Natural
      with Pre => Object.Is_Open;
@@ -267,6 +301,8 @@ package Event_Device is
      (Object     : Input_Device;
       Identifier : Uploaded_Force_Feedback_Effect_ID;
       Count      : Natural := 1);
+
+   ----------------------------------------------------------------------------
 
    function Properties (Object : Input_Device) return Device_Properties
      with Pre => Object.Is_Open;

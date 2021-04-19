@@ -4,7 +4,6 @@ with Ada.Command_Line;
 with Ada.Numerics.Long_Long_Elementary_Functions;
 with Ada.Text_IO;
 
-with Event_Device.Accelerometers;
 with Event_Device.Force_Feedbacks;
 
 procedure Main is
@@ -243,17 +242,16 @@ begin
          package LLEF renames Ada.Numerics.Long_Long_Elementary_Functions;
          package LLF_IO is new Ada.Text_IO.Float_IO (Long_Long_Float);
 
-         Item : Event_Device.Accelerometers.State;
+         Item : Event_Device.State;
          Features : constant Event_Device.Absolute_Axis_Features := EF.Features;
 
-         use Event_Device.Accelerometers;
+         use all type Event_Device.Absolute_Axis_Kind;
+         use all type Event_Device.Key_State;
       begin
          loop
-            Event_Device.Accelerometers.Read (EF, Features, Item);
+            EF.Read (Features, Item);
             declare
-               use all type Event_Device.Absolute_Axis_Kind;
-
-               V1 : constant Axis_Value :=
+               V1 : constant Event_Device.Axis_Value :=
                  Item.Absolute (X) * Item.Absolute (X) +
                  Item.Absolute (Y) * Item.Absolute (Y) +
                  Item.Absolute (Z) * Item.Absolute (Z);
