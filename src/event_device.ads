@@ -1,7 +1,6 @@
 with Interfaces.C;
 
 private with Ada.Finalization;
-private with Ada.Unchecked_Conversion;
 
 package Event_Device is
    pragma Pure;
@@ -270,6 +269,18 @@ package Event_Device is
    --  Rx/Ry/Rz: units/deg/s    units/rad
 
    function Axis (Object : Input_Device; Axis : Absolute_Axis_Kind) return Axis_Info
+     with Pre => Object.Is_Open;
+
+   function Key_Statuses (Object : Input_Device) return Key_Features
+     with Pre => Object.Is_Open;
+
+   function LED_Statuses (Object : Input_Device) return LED_Features
+     with Pre => Object.Is_Open;
+
+   function Sound_Statuses (Object : Input_Device) return Sound_Features
+     with Pre => Object.Is_Open;
+
+   function Switch_Statuses (Object : Input_Device) return Switch_Features
      with Pre => Object.Is_Open;
 
    ----------------------------------------------------------------------------

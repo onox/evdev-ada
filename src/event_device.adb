@@ -1,6 +1,7 @@
 with System;
 
 with Ada.IO_Exceptions;
+with Ada.Unchecked_Conversion;
 
 with Event_Device.Input_Dev;
 
@@ -510,6 +511,68 @@ package body Event_Device is
       pragma Assert (Error_Code /= -1);
       return Result;
    end Axis;
+
+   function Key_Statuses (Object : Input_Device) return Key_Features is
+      Result : aliased Internal_Key_Features;
+
+      Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD, (Read, 'E', 16#18#,
+         Result'Size / System.Storage_Unit),
+         Result'Address);
+   begin
+      pragma Assert (Error_Code /= -1);
+
+      return
+        (Button_South           => Result.Button_South,
+         Button_East            => Result.Button_East,
+         Button_North           => Result.Button_North,
+         Button_West            => Result.Button_West,
+         Button_Trigger_Left_1  => Result.Button_Trigger_Left_1,
+         Button_Trigger_Right_1 => Result.Button_Trigger_Right_1,
+         Button_Trigger_Left_2  => Result.Button_Trigger_Left_2,
+         Button_Trigger_Right_2 => Result.Button_Trigger_Right_2,
+         Button_Select          => Result.Button_Select,
+         Button_Start           => Result.Button_Start,
+         Button_Mode            => Result.Button_Mode,
+         Button_Thumb_Left      => Result.Button_Thumb_Left,
+         Button_Thumb_Right     => Result.Button_Thumb_Right);
+   end Key_Statuses;
+
+   function LED_Statuses (Object : Input_Device) return LED_Features is
+      Result : aliased LED_Features;
+
+      Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD,
+         (Read, 'E', 16#19#, Result'Size / System.Storage_Unit),
+         Result'Address);
+   begin
+      pragma Assert (Error_Code /= -1);
+      return Result;
+   end LED_Statuses;
+
+   function Sound_Statuses (Object : Input_Device) return Sound_Features is
+      Result : aliased Sound_Features;
+
+      Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD,
+         (Read, 'E', 16#1A#, Result'Size / System.Storage_Unit),
+         Result'Address);
+   begin
+      pragma Assert (Error_Code /= -1);
+      return Result;
+   end Sound_Statuses;
+
+   function Switch_Statuses (Object : Input_Device) return Switch_Features is
+      Result : aliased Switch_Features;
+
+      Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
+        (Object.FD,
+         (Read, 'E', 16#1B#, Result'Size / System.Storage_Unit),
+         Result'Address);
+   begin
+      pragma Assert (Error_Code /= -1);
+      return Result;
+   end Switch_Statuses;
 
    function Force_Feedback_Effects (Object : Input_Device) return Natural is
       Result : aliased Integer;
