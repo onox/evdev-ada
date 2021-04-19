@@ -681,7 +681,7 @@ package body Event_Device is
         (Source => Interfaces.C.unsigned_short, Target => Key_Info_Kind);
 
       function Convert is new Ada.Unchecked_Conversion
-        (Source => Interfaces.C.unsigned_short, Target => Relative_Axis_Kind);
+        (Source => Interfaces.C.unsigned_short, Target => Relative_Axis_Info_Kind);
 
       function Convert is new Ada.Unchecked_Conversion
         (Source => Unsigned_64, Target => Absolute_Axis_Info_Kind);
@@ -704,7 +704,8 @@ package body Event_Device is
             when Relative =>
                if not Has_Dropped then
                   declare
-                     Code : constant Relative_Axis_Kind := Convert (Event.Code);
+                     Code : constant Relative_Axis_Kind :=
+                       Relative_Axis_Kind (Relative_Axis_Info_Kind'(Convert (Event.Code)));
                   begin
                      --  TODO What values to expect? Just Integers?
                      Value.Relative (Code) := Integer (Event.Value);
@@ -750,10 +751,11 @@ package body Event_Device is
                         null;
                   end case;
                end;
-            when Miscellaneous =>
+            when Miscellaneous | Force_Feedback =>
                null;
             when others =>
-               raise Ada.IO_Exceptions.Data_Error with "Unexpected event " & Event.Event'Image;
+               raise Ada.IO_Exceptions.Data_Error with "Unexpected event " & Event.Event'Image &
+                 " with code " & Event.Code'Image & " and value " & Event.Value'Image;
          end case;
       end loop;
    end Read;
