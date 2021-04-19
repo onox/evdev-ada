@@ -1,8 +1,16 @@
-.PHONY: clean
+PREFIX ?= /usr
 
-all:
-	gprbuild -P main.gpr
-	./main /dev/input/event19
+.PHONY: build clean install uninstall
+
+build:
+	alr build
+
 clean:
-	gprclean -P main.gpr
-	rmdir -p build/obj
+	alr clean
+	rm -rf build
+
+install:
+	install build/bin/evdev-ada $(PREFIX)/bin/
+
+uninstall:
+	rm $(PREFIX)/bin/evdev-ada
