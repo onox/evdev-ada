@@ -17,7 +17,7 @@
 with Interfaces.C;
 
 with Ada.Command_Line;
-with Ada.Numerics.Long_Long_Elementary_Functions;
+with Ada.Numerics.Long_Elementary_Functions;
 with Ada.Text_IO;
 
 with Event_Device.Force_Feedbacks;
@@ -311,8 +311,8 @@ begin
 
    if Do_Read and (EF.Events.Absolute_Axes or EF.Events.Relative_Axes or EF.Events.Keys) then
       declare
-         package LLEF renames Ada.Numerics.Long_Long_Elementary_Functions;
-         package LLF_IO is new Ada.Text_IO.Float_IO (Long_Long_Float);
+         package LLEF renames Ada.Numerics.Long_Elementary_Functions;
+         package LLF_IO is new Ada.Text_IO.Float_IO (Long_Float);
 
          Item : Event_Device.State;
          Features : constant Event_Device.Absolute_Axis_Features := EF.Features;
@@ -329,8 +329,8 @@ begin
                  Item.Absolute (Y) * Item.Absolute (Y) +
                  Item.Absolute (Z) * Item.Absolute (Z);
 
-               L : constant Long_Long_Float :=
-                 1.0 - LLEF.Sqrt (Long_Long_Float (V1));
+               L : constant Long_Float :=
+                 1.0 - LLEF.Sqrt (Long_Float (V1));
                L_I : String := "-0.00000000";
             begin
                LLF_IO.Put (L_I, Item => L, Aft => 8, Exp => 0);
