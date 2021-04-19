@@ -167,8 +167,7 @@ begin
             for Kind in Event_Device.Absolute_Axis_Kind'Range loop
                if Features (Kind) then
                   declare
-                     Axis : constant Event_Device.Axis_Info :=
-                       EF.Axis (Event_Device.Absolute_Axis_Info_Kind (Kind));
+                     Axis : constant Event_Device.Axis_Info := EF.Axis (Kind);
                   begin
                      Ada.Text_IO.Put_Line ("  " & Kind'Image & ":");
                      Ada.Text_IO.Put_Line ("    Value:      " & Axis.Value'Image);

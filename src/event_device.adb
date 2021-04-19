@@ -493,7 +493,7 @@ package body Event_Device is
 
    ----------------------------------------------------------------------------
 
-   function Axis (Object : Input_Device; Axis : Absolute_Axis_Info_Kind) return Axis_Info is
+   function Axis (Object : Input_Device; Axis : Absolute_Axis_Kind) return Axis_Info is
       Result : aliased Axis_Info;
 
       function Convert is new Ada.Unchecked_Conversion
@@ -501,7 +501,8 @@ package body Event_Device is
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD,
-         (Read, 'E', 16#40# + Unsigned_8 (Convert (Axis)), Result'Size / System.Storage_Unit),
+         (Read, 'E', 16#40# + Unsigned_8 (Convert (Absolute_Axis_Info_Kind (Axis))),
+          Result'Size / System.Storage_Unit),
          Result'Address);
    begin
       pragma Assert (Error_Code /= -1);

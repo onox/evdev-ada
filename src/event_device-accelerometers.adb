@@ -65,8 +65,7 @@ package body Event_Device.Accelerometers is
                   begin
                      if Axes (Code) then
                         declare
-                           Axis : constant Event_Device.Axis_Info :=
-                             Object.Axis (Absolute_Axis_Info_Kind (Code));
+                           Axis : constant Event_Device.Axis_Info := Object.Axis (Code);
 
                            Resolution : constant Integer :=
                              (if Axis.Resolution > 0 then

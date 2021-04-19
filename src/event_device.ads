@@ -237,7 +237,7 @@ package Event_Device is
 
    ----------------------------------------------------------------------------
 
-   function Axis (Object : Input_Device; Axis : Absolute_Axis_Info_Kind) return Axis_Info
+   function Axis (Object : Input_Device; Axis : Absolute_Axis_Kind) return Axis_Info
      with Pre => Object.Is_Open;
 
    function Force_Feedback_Effects (Object : Input_Device) return Natural
@@ -379,6 +379,9 @@ private
       Dropped   => 3);
    for Synchronization_Kind'Size use 16;
 
+   --  Representation clause for the *_Info_Kind types are needed
+   --  because of holes in the representation values
+
    for Key_Info_Kind use
      (Button_South           => 16#130#,
       Button_East            => 16#131#,
@@ -414,8 +417,6 @@ private
 
    for Relative_Axis_Kind'Size use Relative_Axis_Info_Kind'Size;
 
-   --  Representation clause for Absolute_Axis_Info_Kind is needed
-   --  for function Axis
    for Absolute_Axis_Info_Kind use
      (X                => 16#00#,
       Y                => 16#01#,
