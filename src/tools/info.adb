@@ -6,7 +6,7 @@ with Ada.Text_IO;
 
 with Event_Device.Force_Feedbacks;
 
-procedure Main is
+procedure Info is
    package ACL renames Ada.Command_Line;
 
    EF : Event_Device.Input_Device;
@@ -349,4 +349,4 @@ begin
          end loop;
       end;
    end if;
-end Main;
+end Info;

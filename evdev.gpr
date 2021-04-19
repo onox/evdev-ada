@@ -1,4 +1,7 @@
-project Main is
+project Evdev is
+
+   for Library_Name use "evdev-ada";
+   for Library_Version use "1.0.0";
 
    for Create_Missing_dirs use "True";
 
@@ -6,9 +9,11 @@ project Main is
 
    for Object_Dir use "build/obj";
    for Library_Dir use "build/lib";
-   for Exec_Dir use ".";
 
-   for Main use ("main.adb");
+   type Library_Type_Type is ("relocatable", "static", "static-pic");
+   Library_Type : Library_Type_Type :=
+     external ("EVDEV_LIBRARY_TYPE", external ("LIBRARY_TYPE", "static"));
+   for Library_Kind use Library_Type;
 
    type Enabled_Kind is ("enabled", "disabled");
    Compile_Checks : Enabled_Kind := External ("EVDEV_COMPILE_CHECKS", "enabled");
@@ -16,7 +21,7 @@ project Main is
    Style_Checks : Enabled_Kind := External ("EVDEV_STYLE_CHECKS", "enabled");
    Contracts_Checks : Enabled_Kind := External ("EVDEV_CONTRACTS", "enabled");
 
-   type Build_Kind is ("debug", "release");
+   type Build_Kind is ("debug", "release", "coverage", "profiling");
    Build_Mode : Build_Kind := External ("EVDEV_BUILD_MODE", "release");
 
    Compile_Checks_Switches := ();
@@ -70,6 +75,10 @@ project Main is
       when "debug" =>
          Build_Switches := ("-g",   -- Debug info
                             "-Og"); -- No optimization
+      when "coverage" =>
+         Build_Switches := ("-fprofile-arcs", "-ftest-coverage");
+      when "profiling" =>
+         Build_Switches := ("-g", "-pg");
    end case;
 
    package Compiler is
@@ -88,4 +97,4 @@ project Main is
       for Switches ("Ada") use ("-Es"); --  Symbolic traceback
    end Binder;
 
-end Main;
+end Evdev;
