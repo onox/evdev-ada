@@ -43,6 +43,37 @@ package body Event_Device is
    end record;
    for Internal_Key_Features'Size use 320;
 
+   type Internal_Relative_Axis_Features is record
+      X                         : Boolean := False;
+      Y                         : Boolean := False;
+      Z                         : Boolean := False;
+      Rx                        : Boolean := False;
+      Ry                        : Boolean := False;
+      Rz                        : Boolean := False;
+      Horizontal_Wheel          : Boolean := False;
+      Diagonal                  : Boolean := False;
+      Wheel                     : Boolean := False;
+      Misc                      : Boolean := False;
+      Wheel_High_Res            : Boolean := False;
+      Horizontal_Wheel_High_Res : Boolean := False;
+   end record;
+
+   for Internal_Relative_Axis_Features use record
+      X                         at 0 range 0 .. 0;
+      Y                         at 0 range 1 .. 1;
+      Z                         at 0 range 2 .. 2;
+      Rx                        at 0 range 3 .. 3;
+      Ry                        at 0 range 4 .. 4;
+      Rz                        at 0 range 5 .. 5;
+      Horizontal_Wheel          at 0 range 6 .. 6;
+      Diagonal                  at 0 range 7 .. 7;
+      Wheel                     at 0 range 8 .. 8;
+      Misc                      at 0 range 9 .. 9;
+      Wheel_High_Res            at 0 range 11 .. 11;
+      Horizontal_Wheel_High_Res at 0 range 12 .. 12;
+   end record;
+   for Internal_Relative_Axis_Features'Size use Relative_Axis_Info_Kind'Size;
+
    type Internal_Absolute_Axis_Features is record
       X              : Boolean := False;
       Y              : Boolean := False;
@@ -130,7 +161,7 @@ package body Event_Device is
       MT_Tool_X      at 0 range 60 .. 60;
       MT_Tool_Y      at 0 range 61 .. 61;
    end record;
-   for Internal_Absolute_Axis_Features'Size use 64;
+   for Internal_Absolute_Axis_Features'Size use Absolute_Axis_Info_Kind'Size;
 
    type Internal_Force_Feedback_Features is record
       Rumble      : Boolean := False;
@@ -291,7 +322,7 @@ package body Event_Device is
    end Features;
 
    function Features (Object : Input_Device) return Relative_Axis_Features is
-      Result : aliased Relative_Axis_Features;
+      Result : aliased Internal_Relative_Axis_Features;
 
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD,
@@ -299,7 +330,20 @@ package body Event_Device is
          Result'Address);
    begin
       pragma Assert (Error_Code /= -1);
-      return Result;
+
+      return
+        (X                          => Result.X,
+         Y                          => Result.Y,
+         Z                          => Result.Z,
+         Rx                         => Result.Rx,
+         Ry                         => Result.Ry,
+         Rz                         => Result.Rz,
+         Horizontal_Wheel           => Result.Horizontal_Wheel,
+         Diagonal                   => Result.Diagonal,
+         Wheel                      => Result.Wheel,
+         Misc                       => Result.Misc,
+         Wheel_High_Res             => Result.Wheel_High_Res,
+         Horizontal_Wheel_High_Res  => Result.Horizontal_Wheel_High_Res);
    end Features;
 
    function Features (Object : Input_Device) return Absolute_Axis_Features is

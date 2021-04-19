@@ -59,7 +59,7 @@ package Event_Device is
 
    type Key_Kind is new Key_Info_Kind;
 
-   type Relative_Axis_Kind is
+   type Relative_Axis_Info_Kind is
      (X,
       Y,
       Z,
@@ -72,6 +72,8 @@ package Event_Device is
       Misc,
       Wheel_High_Res,
       Horizontal_Wheel_High_Res);
+
+   type Relative_Axis_Kind is new Relative_Axis_Info_Kind;
 
    type Absolute_Axis_Info_Kind is
      (X,
@@ -218,7 +220,6 @@ package Event_Device is
       Power           : Boolean := False;
       Feedback_Status : Boolean := False;
    end record;
-   --  TODO Enum + array?
 
    type Input_Device is tagged limited private;
 
@@ -338,8 +339,7 @@ private
       Pointing_Stick   at 0 range 5 .. 5;
       Accelerometer    at 0 range 6 .. 6;
    end record;
-   for Device_Properties'Size use 8;
-   --  TODO INPUT_PROP_CNT = 32
+   for Device_Properties'Size use 32;
 
    for Device_Events use record
       Synchronization at 0 range 0 .. 0;
@@ -397,7 +397,7 @@ private
 
    for Key_Kind'Size use Key_Info_Kind'Size;
 
-   for Relative_Axis_Kind use
+   for Relative_Axis_Info_Kind use
      (X                         => 16#00#,
       Y                         => 16#01#,
       Z                         => 16#02#,
@@ -410,8 +410,9 @@ private
       Misc                      => 16#09#,
       Wheel_High_Res            => 16#0B#,
       Horizontal_Wheel_High_Res => 16#0C#);
-   for Relative_Axis_Kind'Size use 16;
-   --  TODO IS this going to work because of the missing 0x0A?
+   for Relative_Axis_Info_Kind'Size use 16;
+
+   for Relative_Axis_Kind'Size use Relative_Axis_Info_Kind'Size;
 
    --  Representation clause for Absolute_Axis_Info_Kind is needed
    --  for function Axis
