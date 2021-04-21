@@ -17,7 +17,6 @@
 with Interfaces.C;
 
 with Ada.Command_Line;
-with Ada.Numerics.Long_Elementary_Functions;
 with Ada.Text_IO;
 
 with Event_Device.Force_Feedbacks;
@@ -311,44 +310,42 @@ begin
 
    if Do_Read and (EF.Events.Absolute_Axes or EF.Events.Relative_Axes or EF.Events.Keys) then
       declare
-         package LLEF renames Ada.Numerics.Long_Elementary_Functions;
-         package LLF_IO is new Ada.Text_IO.Float_IO (Long_Float);
-
          Item : Event_Device.State;
          Features : constant Event_Device.Absolute_Axis_Features := EF.Features;
+         Accelerometer : constant Boolean := EF.Properties.Accelerometer;
 
          use all type Event_Device.Absolute_Axis_Kind;
          use all type Event_Device.Key_State;
+
+         type Axis_Value is delta 2.0 ** (-16)
+           range -(2.0 ** 47) ..
+                 +(2.0 ** 47 - 2.0 ** (-16));
       begin
          loop
-            EF.Read (Features, Item);
+            EF.Read (Item);
 
-            declare
-               V1 : constant Event_Device.Axis_Value :=
-                 Item.Absolute (X) * Item.Absolute (X) +
-                 Item.Absolute (Y) * Item.Absolute (Y) +
-                 Item.Absolute (Z) * Item.Absolute (Z);
-
-               L : constant Long_Float :=
-                 1.0 - LLEF.Sqrt (Long_Float (V1));
-               L_I : String := "-0.00000000";
-            begin
-               LLF_IO.Put (L_I, Item => L, Aft => 8, Exp => 0);
-
-               Ada.Text_IO.Put_Line
-                 (Item.Time'Image & " " &
-                  Item.Absolute (X)'Image &
-                  Item.Absolute (Y)'Image &
-                  Item.Absolute (Z)'Image &
-                  L_I &
-                  "   " &
-                  Item.Absolute (Rx)'Image &
-                  Item.Absolute (Ry)'Image &
-                  Item.Absolute (Rz)'Image &
-                  "   " &
-                  Item.Absolute (Hat_0X)'Image &
-                  Item.Absolute (Hat_0Y)'Image);
-            end;
+            if EF.Events.Absolute_Axes then
+               Ada.Text_IO.Put (Item.Time'Image);
+               for Axis in Features'Range loop
+                  if Features (Axis) then
+                     declare
+                        Info  : constant Event_Device.Axis_Info := EF.Axis (Axis);
+                        Info_Range : constant Axis_Value :=
+                          Axis_Value (Info.Maximum - Info.Minimum);
+                        Value : Axis_Value := Axis_Value (Item.Absolute (Axis));
+                     begin
+                        Value := Value /
+                          Axis_Value (if Info.Resolution > 0 then Info.Resolution else 1);
+                        if not Accelerometer then
+                           Value := (Value - Axis_Value (Info.Minimum)) / Info_Range;
+                           Value := Value * 2.0 - 1.0;
+                        end if;
+                        Ada.Text_IO.Put (" " & Axis'Image & ": " & Value'Image);
+                     end;
+                  end if;
+               end loop;
+               Ada.Text_IO.New_Line;
+            end if;
 
             declare
                Pressed_Keys : constant Boolean := (for some Key of Item.Keys => Key = Pressed);
