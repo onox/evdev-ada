@@ -678,17 +678,12 @@ package body Event_Device is
 
    procedure Read
      (Object : Input_Device;
-      Axes   : Absolute_Axis_Features;
       Value  : out State)
    is
       use Event_Device.Input_Dev;
       use type Interfaces.C.long;
       use type Interfaces.C.unsigned_short;
       use type Interfaces.C.int;
-
-      type Long_Axis_Value is delta 2.0 ** (-16)
-        range -(2.0 ** 47) ..
-              +(2.0 ** 47 - 2.0 ** (-16));
 
       function Convert is new Ada.Unchecked_Conversion
         (Source => Interfaces.C.unsigned_short, Target => Synchronization_Kind);
@@ -723,7 +718,6 @@ package body Event_Device is
                      Code : constant Relative_Axis_Kind :=
                        Relative_Axis_Kind (Relative_Axis_Info_Kind'(Convert (Event.Code)));
                   begin
-                     --  TODO What values to expect? Just Integers?
                      Value.Relative (Code) := Integer (Event.Value);
                   end;
                end if;
@@ -733,23 +727,7 @@ package body Event_Device is
                      Code : constant Absolute_Axis_Kind :=
                        Absolute_Axis_Kind (Convert (Unsigned_64 (Event.Code)));
                   begin
-                     if Axes (Code) then
-                        declare
-                           Axis : constant Event_Device.Axis_Info := Object.Axis (Code);
-
-                           Resolution : constant Integer :=
-                             (if Axis.Resolution > 0 then
-                                Axis.Resolution
-                              else
-                                (Axis.Maximum - Axis.Minimum));
-                        begin
-                           Value.Absolute (Code) :=
-                             Axis_Value (Long_Axis_Value (Event.Value) / Resolution);
-                        end;
-                     else
-                        raise Ada.IO_Exceptions.Data_Error with
-                          "Unexpected absolute axis " & Code'Image;
-                     end if;
+                     Value.Absolute (Code) := Integer (Event.Value);
                   end;
                end if;
             when Synchronization =>
@@ -767,11 +745,8 @@ package body Event_Device is
                         null;
                   end case;
                end;
-            when Miscellaneous | Force_Feedback =>
-               null;
             when others =>
-               raise Ada.IO_Exceptions.Data_Error with "Unexpected event " & Event.Event'Image &
-                 " with code " & Event.Code'Image & " and value " & Event.Value'Image;
+               null;
          end case;
       end loop;
    end Read;
