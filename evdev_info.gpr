@@ -1,6 +1,6 @@
 with "evdev";
 
-project Info is
+project Evdev_Info is
 
    for Languages use ("Ada");
 
@@ -34,4 +34,4 @@ project Info is
       end case;
    end Linker;
 
-end Info;
+end Evdev_Info;

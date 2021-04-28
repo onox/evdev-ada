@@ -9,7 +9,7 @@ authors = ["onox"]
 maintainers = ["onox <denkpadje@gmail.com>"]
 maintainers-logins = ["onox"]
 
-project-files = ["evdev.gpr", "info.gpr"]
+project-files = ["evdev.gpr", "evdev_info.gpr"]
 executables = ["evdev-ada"]
 
 [available.'case(os)']
