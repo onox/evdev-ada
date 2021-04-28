@@ -1,6 +1,6 @@
 name = "evdev"
 description = "Ada 2012 library for input and force-feedback using Linux' evdev API"
-version = "1.0.1"
+version = "1.0.0"
 website = "https://github.com/onox/evdev-ada"
 licenses = "Apache-2.0"
 tags = ["evdev", "force-feedback"]
