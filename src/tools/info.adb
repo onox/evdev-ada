@@ -49,13 +49,14 @@ begin
       Props  : constant Event_Device.Device_Properties := EF.Properties;
       Events : constant Event_Device.Device_Events := EF.Events;
 
-      ID_A : constant String := Event_Device.Hex_Image (ID.Bus_Type);
+      ID_A : constant String := Event_Device.Hex_Image (ID.Bus);
       ID_B : constant String := Event_Device.Hex_Image (ID.Vendor);
       ID_C : constant String := Event_Device.Hex_Image (ID.Product);
       ID_D : constant String := Event_Device.Hex_Image (ID.Version);
    begin
-      Ada.Text_IO.Put_Line ("Bus vendor product version: " &
+      Ada.Text_IO.Put_Line ("Bus ven pro ver: " &
         ID_A & " " & ID_B & " " & ID_C & " " & ID_D);
+      Ada.Text_IO.Put_Line ("GUID:            " & Event_Device.GUID (ID));
       Ada.Text_IO.Put_Line ("Properties:");
       Ada.Text_IO.Put_Line ("  Pointer:        " & Props.Pointer'Image);
       Ada.Text_IO.Put_Line ("  Direct:         " & Props.Direct'Image);
