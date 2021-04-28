@@ -32,35 +32,30 @@ package Event_Device.Force_Feedbacks is
    type Force_Feedback_Replay is record
       Length      : Duration_MS;
       Start_Delay : Duration_MS;
-   end record
-     with Convention => C_Pass_By_Copy;
+   end record;
 
    type Force_Feedback_Trigger is record
       Button   : Unsigned_16;
       Interval : Duration_MS;
-   end record
-     with Convention => C_Pass_By_Copy;
+   end record;
 
    type Force_Feedback_Envelope is record
       Attack_Length : Duration_MS;
       Attack_Level  : Unsigned_16;
       Fade_Length   : Duration_MS;
       Fade_Level    : Unsigned_16;
-   end record
-     with Convention => C_Pass_By_Copy;
+   end record;
 
    type Force_Feedback_Constant_Effect is record
       Level    : short;
       Envelope : Force_Feedback_Envelope;
-   end record
-     with Convention => C_Pass_By_Copy;
+   end record;
 
    type Force_Feedback_Ramp_Effect is record
       Start_Level : short;
       End_Level   : short;
       Envelope    : Force_Feedback_Envelope;
-   end record
-     with Convention => C_Pass_By_Copy;
+   end record;
 
    type Force_Feedback_Condition_Effect is record
       Right_Saturation : Unsigned_16;
@@ -69,8 +64,7 @@ package Event_Device.Force_Feedbacks is
       Left_Coeff       : short;
       Deadband         : Unsigned_16;
       Center           : short;
-   end record
-     with Convention => C_Pass_By_Copy;
+   end record;
 
    type Periodic_Wave_Kind is (Square, Triangle, Sine, Saw_Up, Saw_Down);
    --  Custom is not supported
@@ -84,14 +78,12 @@ package Event_Device.Force_Feedbacks is
       Envelope    : Force_Feedback_Envelope;
       Custom_Len  : unsigned       := 0;
       Custom_Data : System.Address := System.Null_Address;
-   end record
-     with Convention => C_Pass_By_Copy;
+   end record;
 
    type Force_Feedback_Rumble_Effect is record
       Strong_Magnitude : Unsigned_16;
       Weak_Magnitude   : Unsigned_16;
-   end record
-     with Convention => C_Pass_By_Copy;
+   end record;
 
    type Force_Feedback_Effect_Kind is
      (Rumble, Periodic, Constant_V, Spring, Friction, Damper, Inertia, Ramp);
@@ -111,8 +103,7 @@ package Event_Device.Force_Feedbacks is
 
    type Axis_Direction is (X, Y);
 
-   type Condition_Effect_Array is array (Axis_Direction) of Force_Feedback_Condition_Effect
-     with Convention => C;
+   type Condition_Effect_Array is array (Axis_Direction) of Force_Feedback_Condition_Effect;
 
    type Force_Feedback_Effect_Union (Kind : Force_Feedback_Effect_Kind := Rumble) is record
       case Kind is
@@ -127,8 +118,7 @@ package Event_Device.Force_Feedbacks is
          when Rumble =>
             Rumble_Effect   : Force_Feedback_Rumble_Effect;
       end case;
-   end record
-     with Convention => C_Pass_By_Copy, Unchecked_Union;
+   end record;
 
    type Force_Feedback_Effect is record
       Kind      : Force_Feedback_Effect_Kind;
@@ -139,8 +129,7 @@ package Event_Device.Force_Feedbacks is
       Replay    : Force_Feedback_Replay;
 
       Effect    : Force_Feedback_Effect_Union;
-   end record
-     with Convention => C_Pass_By_Copy;
+   end record;
 
    procedure Upload_Force_Feedback_Effect
      (Object : Input_Device;
@@ -175,5 +164,23 @@ private
       Up    => 16#8000#,
       Right => 16#C000#);
    for Direction_Kind'Size use Unsigned_16'Size;
+
+   --  Ugly pragmas instead of aspects to satisfy GNAT CE 2020...
+   pragma Convention (C_Pass_By_Copy, Force_Feedback_Replay);
+   pragma Convention (C_Pass_By_Copy, Force_Feedback_Trigger);
+   pragma Convention (C_Pass_By_Copy, Force_Feedback_Envelope);
+
+   pragma Convention (C_Pass_By_Copy, Force_Feedback_Constant_Effect);
+   pragma Convention (C_Pass_By_Copy, Force_Feedback_Ramp_Effect);
+   pragma Convention (C_Pass_By_Copy, Force_Feedback_Condition_Effect);
+   pragma Convention (C_Pass_By_Copy, Force_Feedback_Periodic_Effect);
+   pragma Convention (C_Pass_By_Copy, Force_Feedback_Rumble_Effect);
+
+   pragma Convention (C, Condition_Effect_Array);
+
+   pragma Convention (C_Pass_By_Copy, Force_Feedback_Effect_Union);
+   pragma Unchecked_Union (Force_Feedback_Effect_Union);
+
+   pragma Convention (C_Pass_By_Copy, Force_Feedback_Effect);
 
 end Event_Device.Force_Feedbacks;
