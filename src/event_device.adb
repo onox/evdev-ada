@@ -16,7 +16,6 @@
 
 with System;
 
-with Ada.IO_Exceptions;
 with Ada.Unchecked_Conversion;
 
 with Event_Device.Input_Dev;
@@ -696,7 +695,6 @@ package body Event_Device is
       Value  : out State)
    is
       use Event_Device.Input_Dev;
-      use type Interfaces.C.long;
       use type Interfaces.C.unsigned_short;
       use type Interfaces.C.int;
 

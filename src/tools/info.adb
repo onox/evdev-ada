@@ -244,8 +244,6 @@ begin
          use all type FF.Force_Feedback_Effect_Kind;
          use all type FF.Direction_Kind;
          use type Event_Device.Force_Feedback_Effect_ID;
-         use type Event_Device.Unsigned_16;
-         use type Interfaces.C.short;
 
          Effect_Rumble : constant FF.Force_Feedback_Effect :=
            (Kind      => Rumble,
