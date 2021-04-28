@@ -32,9 +32,11 @@ package Event_Device is
    function Hex_Image (Value : Unsigned_16) return String;
 
    type Device_ID is record
-      Bus_Type, Vendor, Product, Version : Unsigned_16;
+      Bus, Vendor, Product, Version : Unsigned_16;
    end record
      with Convention => C_Pass_By_Copy;
+
+   function GUID (ID : Device_ID) return String;
 
    type Axis_Info is record
       Value, Minimum, Maximum, Fuzz, Flat, Resolution : Integer;

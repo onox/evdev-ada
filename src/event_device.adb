@@ -235,12 +235,27 @@ package body Event_Device is
       return Hex (Value / 16) & Hex (Value mod 16);
    end Hex_Image;
 
-   function Hex_Image (Value : Unsigned_16) return String is
+   function Hex_Image (Value : Unsigned_16; Bit_Order : System.Bit_Order) return String is
       Low  : constant Unsigned_8 := Unsigned_8 (16#FF# and Value);
       High : constant Unsigned_8 := Unsigned_8 (16#FF# and (Value / 256));
+
+      use type System.Bit_Order;
    begin
-      return Hex_Image (High) & Hex_Image (Low);
+      if System.Default_Bit_Order = Bit_Order then
+         return Hex_Image (Low) & Hex_Image (High);
+      else
+         return Hex_Image (High) & Hex_Image (Low);
+      end if;
    end Hex_Image;
+
+   function Hex_Image (Value : Unsigned_16) return String is
+     (Hex_Image (Value, System.High_Order_First));
+
+   function GUID (ID : Device_ID) return String is
+     (Hex_Image (ID.Bus, System.Low_Order_First) & "0000" &
+      Hex_Image (ID.Vendor, System.Low_Order_First) & "0000" &
+      Hex_Image (ID.Product, System.Low_Order_First) & "0000" &
+      Hex_Image (ID.Version, System.Low_Order_First) & "0000");
 
    ----------------------------------------------------------------------------
 
