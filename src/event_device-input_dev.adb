@@ -15,8 +15,11 @@
 --  limitations under the License.
 
 with Ada.IO_Exceptions;
+with Ada.Characters.Latin_1;
 
 package body Event_Device.Input_Dev is
+
+   package L1 renames Ada.Characters.Latin_1;
 
    subtype Size_Type is Interfaces.C.size_t;
 
@@ -137,7 +140,7 @@ package body Event_Device.Input_Dev is
    end Write;
 
    function Open (File_Path : String) return File_Descriptor is
-      FD : constant Integer := Integer (C_Open (File_Path, Read_Write));
+      FD : constant Integer := Integer (C_Open (File_Path & L1.NUL, Read_Write));
    begin
       if FD = -1 then
          raise Ada.IO_Exceptions.Use_Error with "Could not open device " & File_Path;
