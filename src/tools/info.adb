@@ -320,6 +320,15 @@ begin
            range -(2.0 ** 47) ..
                  +(2.0 ** 47 - 2.0 ** (-16));
       begin
+         --  Set initial state of Item
+         if EF.Events.Absolute_Axes then
+            for Axis in Features'Range loop
+               if Features (Axis) then
+                  Item.Absolute (Axis) := EF.Axis (Axis).Value;
+               end if;
+            end loop;
+         end if;
+
          loop
             EF.Read (Item);
 
