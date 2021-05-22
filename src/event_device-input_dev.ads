@@ -21,6 +21,15 @@ private with Ada.Unchecked_Conversion;
 private package Event_Device.Input_Dev is
    pragma Pure;
 
+   type Error_Kind is (Device, End_Of_File, Data);
+
+   type Result (Is_Success : Boolean := False) is record
+      case Is_Success is
+         when True  => FD    : File_Descriptor;
+         when False => Error : Error_Kind;
+      end case;
+   end record;
+
    use Interfaces.C;
 
    type Timeval is record
@@ -58,17 +67,17 @@ private package Event_Device.Input_Dev is
       Command : IOCTL_Command;
       Value   : Integer) return Integer;
 
-   procedure Read
+   function Read
      (FD    : File_Descriptor;
-      Event : out Input_Dev.Input_Event);
+      Event : out Input_Dev.Input_Event) return Result;
 
-   procedure Write
+   function Write
      (FD    : File_Descriptor;
-      Event : Input_Dev.Input_Event);
+      Event : Input_Dev.Input_Event) return Result;
 
-   function Open (File_Path : String) return File_Descriptor;
+   function Open (File_Path : String) return Result;
 
-   procedure Close (FD : File_Descriptor);
+   function Close (FD : File_Descriptor) return Result;
 
 private
 

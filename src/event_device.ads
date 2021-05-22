@@ -270,11 +270,12 @@ package Event_Device is
       Time     : Duration             := 0.0;
    end record;
 
-   procedure Read
+   function Read
      (Object : Input_Device;
-      Value  : out State)
+      Value  : out State) return Boolean
    with Pre => Object.Is_Open;
-   --  Read keys, relative, and absolute axes of device
+   --  Read keys, relative, and absolute axes of device and return whether
+   --  reading was successful
    --
    --  Resolution of accelerometer and gyro axes:
    --
@@ -323,10 +324,11 @@ package Event_Device is
    subtype Uploaded_Force_Feedback_Effect_ID is Force_Feedback_Effect_ID
      range 0 .. Force_Feedback_Effect_ID'Last;
 
-   procedure Play_Force_Feedback_Effect
+   function Play_Force_Feedback_Effect
      (Object     : Input_Device;
       Identifier : Uploaded_Force_Feedback_Effect_ID;
-      Count      : Natural := 1);
+      Count      : Natural := 1) return Boolean;
+   --  Play a force feedback effect and return whether playing is successful
 
    ----------------------------------------------------------------------------
 
@@ -370,13 +372,11 @@ package Event_Device is
 
    function Is_Open (Object : Input_Device) return Boolean;
 
-   procedure Open (Object : in out Input_Device; File_Name : String)
-     with Pre  => not Object.Is_Open,
-          Post =>     Object.Is_Open;
+   function Open (Object : in out Input_Device; File_Name : String) return Boolean
+     with Pre  => not Object.Is_Open;
 
    procedure Close (Object : in out Input_Device)
-     with Pre =>      Object.Is_Open,
-          Post => not Object.Is_Open;
+     with Pre => Object.Is_Open;
 
 private
 

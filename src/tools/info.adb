@@ -39,7 +39,11 @@ begin
       return;
    end if;
 
-   EF.Open (ACL.Argument (1));
+   if not EF.Open (ACL.Argument (1)) then
+      Ada.Text_IO.Put_Line ("Cannot open device " & ACL.Argument (1));
+      ACL.Set_Exit_Status (ACL.Failure);
+      return;
+   end if;
 
    Ada.Text_IO.Put_Line ("Device name: '" & EF.Name & "'");
    Ada.Text_IO.Put_Line ("Location:    '" & EF.Location & "'");
@@ -295,9 +299,12 @@ begin
          Ada.Text_IO.Put_Line ("Uploaded effect " & Effect.ID'Image);
 
          delay 0.5;
-         EF.Play_Force_Feedback_Effect (Effect.ID, Count => 1);
-         Ada.Text_IO.Put_Line ("Playing effect " & Effect.ID'Image &
-           " for " & FF.Image (Effect.Replay.Length));
+         if EF.Play_Force_Feedback_Effect (Effect.ID, Count => 1) then
+            Ada.Text_IO.Put_Line ("Playing effect " & Effect.ID'Image &
+              " for " & FF.Image (Effect.Replay.Length));
+         else
+            Ada.Text_IO.Put_Line ("Failed playing effect " & Effect.ID'Image);
+         end if;
 
          delay (if Do_Rumble then 2.0 elsif Do_Periodic then 8.0 else 0.0);
          Ada.Text_IO.Put_Line ("Stopped playing effect");
@@ -330,7 +337,7 @@ begin
          end if;
 
          loop
-            EF.Read (Item);
+            exit when not EF.Read (Item);
 
             if EF.Events.Absolute_Axes then
                Ada.Text_IO.Put (Item.Time'Image);

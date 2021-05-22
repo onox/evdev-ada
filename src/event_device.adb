@@ -267,8 +267,7 @@ package body Event_Device is
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#02#, Result'Size / System.Storage_Unit), Result'Address);
    begin
-      pragma Assert (Error_Code /= -1);
-      return Result;
+      return (if Error_Code /= -1 then Result else (others => 0));
    end ID;
 
    function Location (Object : Input_Device) return String is
@@ -277,8 +276,7 @@ package body Event_Device is
       Length : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#07#, Result'Length), Result'Address);
    begin
-      pragma Assert (Length >= 0);
-      return Result (1 .. Length);
+      return (if Length >= 0 then Result (1 .. Length) else "");
    end Location;
 
    function Unique_ID (Object : Input_Device) return String is
@@ -287,8 +285,7 @@ package body Event_Device is
       Length : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#08#, Result'Length), Result'Address);
    begin
-      pragma Assert (Length >= 0);
-      return Result (1 .. Length);
+      return (if Length >= 0 then Result (1 .. Length) else "");
    end Unique_ID;
 
    ----------------------------------------------------------------------------
@@ -625,8 +622,13 @@ package body Event_Device is
          Event => Force_Feedback,
          Code  => FF_Gain_Code,
          Value => Interfaces.C.int (16#FF_FF.00# * Value));
+
+      Result : constant Input_Dev.Result := Input_Dev.Write (Object.FD, Event);
    begin
-      Input_Dev.Write (Object.FD, Event);
+      --  Ignore any possible errors. If the device has been disconnected
+      --  then playing a force-feedback effect will fail, which can be
+      --  detected by the boolean returned by Play_Force_Feedback_Effect.
+      null;
    end Set_Force_Feedback_Gain;
 
    procedure Set_Force_Feedback_Auto_Center
@@ -640,22 +642,29 @@ package body Event_Device is
          Event => Force_Feedback,
          Code  => FF_Auto_Center_Code,
          Value => Interfaces.C.int (16#FF_FF.00# * Value));
+
+      Result : constant Input_Dev.Result := Input_Dev.Write (Object.FD, Event);
    begin
-      Input_Dev.Write (Object.FD, Event);
+      --  Ignore any possible errors. If the device has been disconnected
+      --  then playing a force-feedback effect will fail, which can be
+      --  detected by the boolean returned by Play_Force_Feedback_Effect.
+      null;
    end Set_Force_Feedback_Auto_Center;
 
-   procedure Play_Force_Feedback_Effect
+   function Play_Force_Feedback_Effect
      (Object     : Input_Device;
       Identifier : Uploaded_Force_Feedback_Effect_ID;
-      Count      : Natural := 1)
+      Count      : Natural := 1) return Boolean
    is
       Event : constant Input_Dev.Input_Event :=
         (Time  => (0, 0),
          Event => Force_Feedback,
          Code  => Interfaces.C.unsigned_short (Identifier),
          Value => Interfaces.C.int (Count));
+
+      Result : constant Input_Dev.Result := Input_Dev.Write (Object.FD, Event);
    begin
-      Input_Dev.Write (Object.FD, Event);
+      return Result.Is_Success;
    end Play_Force_Feedback_Effect;
 
    function Name (Object : Input_Device) return String is
@@ -664,23 +673,26 @@ package body Event_Device is
       Length : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#06#, Result'Length), Result'Address);
    begin
-      pragma Assert (Length >= 0);
-      return Result (1 .. Length);
+      return (if Length >= 0 then Result (1 .. Length) else "");
    end Name;
 
    function Is_Open (Object : Input_Device) return Boolean is
      (Object.Open);
 
-   procedure Open (Object : in out Input_Device; File_Name : String) is
+   function Open (Object : in out Input_Device; File_Name : String) return Boolean is
+      Result : constant Input_Dev.Result := Input_Dev.Open (File_Name);
    begin
-      Object.FD := Input_Dev.Open (File_Name);
-      Object.Open := True;
+      if Result.Is_Success then
+         Object.FD := Result.FD;
+      end if;
+      Object.Open := Result.Is_Success;
+      return Object.Open;
    end Open;
 
    procedure Close (Object : in out Input_Device) is
+      Result : constant Input_Dev.Result := Input_Dev.Close (Object.FD);
    begin
-      Input_Dev.Close (Object.FD);
-      Object.Open := False;
+      Object.Open := not Result.Is_Success;
    end Close;
 
    overriding procedure Finalize (Object : in out Input_Device) is
@@ -690,9 +702,9 @@ package body Event_Device is
       end if;
    end Finalize;
 
-   procedure Read
+   function Read
      (Object : Input_Device;
-      Value  : out State)
+      Value  : out State) return Boolean
    is
       use Event_Device.Input_Dev;
       use type Interfaces.C.unsigned_short;
@@ -716,7 +728,10 @@ package body Event_Device is
       Has_Dropped : Boolean := False;
    begin
       loop
-         Input_Dev.Read (Object.FD, Event);
+         if not Input_Dev.Read (Object.FD, Event).Is_Success then
+            Value := (others => <>);
+            return False;
+         end if;
 
          case Event.Event is
             when Key =>
@@ -762,6 +777,8 @@ package body Event_Device is
                null;
          end case;
       end loop;
+
+      return True;
    end Read;
 
 end Event_Device;

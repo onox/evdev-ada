@@ -87,9 +87,9 @@ package body Event_Device.Input_Dev is
 
    ----------------------------------------------------------------------------
 
-   procedure Read
+   function Read
      (FD    : File_Descriptor;
-      Event : out Input_Dev.Input_Event)
+      Event : out Input_Event) return Result
    is
       Count : constant Size_Type := Event'Size / System.Storage_Unit;
 
@@ -104,19 +104,20 @@ package body Event_Device.Input_Dev is
 
       case Bytes_Read is
          when Signed_Size_Type'First .. -1 =>
-            raise Ada.IO_Exceptions.Device_Error;
+            return (Is_Success => False, Error => Device);
          when 0 =>
-            raise Ada.IO_Exceptions.End_Error;
+            return (Is_Success => False, Error => End_Of_File);
          when others =>
             if Size_Type (Bytes_Read) /= Count then
-               raise Ada.IO_Exceptions.Data_Error;
+               return (Is_Success => False, Error => Data);
             end if;
+            return (Is_Success => True, FD => FD);
       end case;
    end Read;
 
-   procedure Write
+   function Write
      (FD    : File_Descriptor;
-      Event : Input_Dev.Input_Event)
+      Event : Input_Event) return Result
    is
       Count : constant Size_Type := Event'Size / System.Storage_Unit;
 
@@ -131,29 +132,32 @@ package body Event_Device.Input_Dev is
 
       case Bytes_Written is
          when Signed_Size_Type'First .. -1 =>
-            raise Ada.IO_Exceptions.Device_Error;
+            return (Is_Success => False, Error => Device);
          when others =>
             if Size_Type (Bytes_Written) /= Count then
-               raise Ada.IO_Exceptions.Data_Error;
+               return (Is_Success => False, Error => Data);
             end if;
+            return (Is_Success => True, FD => FD);
       end case;
    end Write;
 
-   function Open (File_Path : String) return File_Descriptor is
+   function Open (File_Path : String) return Result is
       FD : constant Integer := Integer (C_Open (File_Path & L1.NUL, Read_Write));
    begin
-      if FD = -1 then
-         raise Ada.IO_Exceptions.Use_Error with "Could not open device " & File_Path;
+      if FD /= -1 then
+         return (Is_Success => True, FD => File_Descriptor (FD));
       else
-         return File_Descriptor (FD);
+         return (Is_Success => False, Error => Device);
       end if;
    end Open;
 
-   procedure Close (FD : File_Descriptor) is
+   function Close (FD : File_Descriptor) return Result is
       Error_Code : constant Interfaces.C.int := C_Close (Interfaces.C.int (FD));
    begin
-      if Error_Code = -1 then
-         raise Ada.IO_Exceptions.Device_Error;
+      if Error_Code /= -1 then
+         return (Is_Success => True, FD => FD);
+      else
+         return (Is_Success => False, Error => Device);
       end if;
    end Close;
 
