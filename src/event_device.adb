@@ -276,7 +276,7 @@ package body Event_Device is
       Length : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#07#, Result'Length), Result'Address);
    begin
-      return (if Length >= 0 then Result (1 .. Length) else "");
+      return (if Length > 0 then Result (1 .. Length - 1) else "");
    end Location;
 
    function Unique_ID (Object : Input_Device) return String is
@@ -285,7 +285,7 @@ package body Event_Device is
       Length : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#08#, Result'Length), Result'Address);
    begin
-      return (if Length >= 0 then Result (1 .. Length) else "");
+      return (if Length > 0 then Result (1 .. Length - 1) else "");
    end Unique_ID;
 
    ----------------------------------------------------------------------------
@@ -673,7 +673,7 @@ package body Event_Device is
       Length : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Read, 'E', 16#06#, Result'Length), Result'Address);
    begin
-      return (if Length >= 0 then Result (1 .. Length) else "");
+      return (if Length > 0 then Result (1 .. Length - 1) else "");
    end Name;
 
    function Is_Open (Object : Input_Device) return Boolean is
