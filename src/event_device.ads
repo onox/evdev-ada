@@ -373,7 +373,7 @@ package Event_Device is
    function Is_Open (Object : Input_Device) return Boolean;
 
    function Open (Object : in out Input_Device; File_Name : String) return Boolean
-     with Pre  => not Object.Is_Open;
+     with Pre => not Object.Is_Open;
 
    procedure Close (Object : in out Input_Device)
      with Pre => Object.Is_Open;
@@ -383,7 +383,7 @@ private
    type File_Descriptor is new Integer;
 
    type Input_Device is limited new Ada.Finalization.Limited_Controlled with record
-      FD   : File_Descriptor;
+      FD   : File_Descriptor := -1;
       Open : Boolean := False;
    end record;
 

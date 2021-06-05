@@ -692,6 +692,7 @@ package body Event_Device is
    procedure Close (Object : in out Input_Device) is
       Result : constant Input_Dev.Result := Input_Dev.Close (Object.FD);
    begin
+      Object.FD   := -1;
       Object.Open := not Result.Is_Success;
    end Close;
 
