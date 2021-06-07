@@ -135,7 +135,7 @@ package Event_Device.Force_Feedbacks is
 
    procedure Upload_Force_Feedback_Effect
      (Object : Input_Device;
-      Effect : aliased in out Force_Feedbacks.Force_Feedback_Effect)
+      Effect : in out Force_Feedbacks.Force_Feedback_Effect)
    with Pre => Object.Is_Open and Object.Events.Force_Feedback;
 
    procedure Remove_Force_Feedback_Effect

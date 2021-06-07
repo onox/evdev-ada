@@ -23,7 +23,7 @@ package body Event_Device.Force_Feedbacks is
 
    procedure Upload_Force_Feedback_Effect
      (Object : Input_Device;
-      Effect : aliased in out Force_Feedbacks.Force_Feedback_Effect)
+      Effect : in out Force_Feedbacks.Force_Feedback_Effect)
    is
       Error_Code : constant Integer := Event_Device.Input_Dev.IO_Control
         (Object.FD, (Write, 'E', 16#80#,
