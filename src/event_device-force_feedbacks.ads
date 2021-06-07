@@ -27,6 +27,8 @@ package Event_Device.Force_Feedbacks is
 
    function From_Duration (Value : Duration) return Duration_MS;
 
+   function To_Duration (Value : Duration_MS) return Duration;
+
    function Image (Value : Duration_MS) return String;
 
    type Force_Feedback_Replay is record
@@ -147,6 +149,9 @@ private
 
    function From_Duration (Value : Duration) return Duration_MS is
      (Duration_MS'Min (Duration_MS'Base (Value * 1e3), Duration_MS'Last));
+
+   function To_Duration (Value : Duration_MS) return Duration is
+     (Duration (Value) / 1e3);
 
    function Image (Value : Duration_MS) return String is (Value'Image & " ms");
 
