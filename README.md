@@ -1,3 +1,4 @@
+[![Build status](https://github.com/onox/evdev-ada/actions/workflows/build.yaml/badge.svg)](https://github.com/onox/evdev-ada/actions/workflows/build.yaml)
 [![Alire crate](https://img.shields.io/endpoint?url=https://alire.ada.dev/badges/evdev.json)](https://alire.ada.dev/crates/evdev.html)
 [![License](https://img.shields.io/github/license/onox/evdev-ada.svg?color=blue)](https://github.com/onox/evdev-ada/blob/master/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/onox/evdev-ada.svg)](https://github.com/onox/evdev-ada/releases/latest)
