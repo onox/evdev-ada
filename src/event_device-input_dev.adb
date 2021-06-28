@@ -26,12 +26,17 @@ package body Event_Device.Input_Dev is
    type Signed_Size_Type is range -(2 ** (Size_Type'Size - 1)) ..
                                   +(2 ** (Size_Type'Size - 1) - 1);
 
-   type Access_Flag is (Read_Only, Write_Only, Read_Write);
+   type Access_Flag is
+     (Read_Only, Write_Only, Read_Write,
+      Non_Block_Read_Only, Non_Block_Write_Only, Non_Block_Read_Write);
 
    for Access_Flag use
-     (Read_Only  => 0,
-      Write_Only => 1,
-      Read_Write => 2);
+     (Read_Only            => 0,
+      Write_Only           => 1,
+      Read_Write           => 2,
+      Non_Block_Read_Only  => 4000,
+      Non_Block_Write_Only => 4001,
+      Non_Block_Read_Write => 4002);
    for Access_Flag'Size use int'Size;
 
    function C_Read
@@ -73,6 +78,15 @@ package body Event_Device.Input_Dev is
 
    ----------------------------------------------------------------------------
 
+   function Errno return int
+     with Import, Convention => C, External_Name => "get_errno";
+
+   function Error_Number return Integer is (Integer (Errno));
+
+   Error_Again : constant := 11;
+
+   ----------------------------------------------------------------------------
+
    function IO_Control
      (FD      : File_Descriptor;
       Command : IOCTL_Command;
@@ -103,7 +117,11 @@ package body Event_Device.Input_Dev is
 
       case Bytes_Read is
          when Signed_Size_Type'First .. -1 =>
-            return (Is_Success => False, Error => Device);
+            if Error_Number = Error_Again then
+               return (Is_Success => False, Error => Would_Block);
+            else
+               return (Is_Success => False, Error => Device);
+            end if;
          when 0 =>
             return (Is_Success => False, Error => End_Of_File);
          when others =>
@@ -139,8 +157,9 @@ package body Event_Device.Input_Dev is
       end case;
    end Write;
 
-   function Open (File_Path : String) return Result is
-      FD : constant Integer := Integer (C_Open (File_Path & L1.NUL, Read_Write));
+   function Open (File_Path : String; Blocking : Boolean) return Result is
+      FD : constant Integer := Integer (C_Open (File_Path & L1.NUL,
+        (if Blocking then Read_Write else Non_Block_Read_Write)));
    begin
       if FD /= -1 then
          return (Is_Success => True, FD => File_Descriptor (FD));

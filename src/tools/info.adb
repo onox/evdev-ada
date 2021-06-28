@@ -322,6 +322,7 @@ begin
 
          use all type Event_Device.Absolute_Axis_Kind;
          use all type Event_Device.Key_State;
+         use all type Event_Device.Read_Result;
 
          type Axis_Value is delta 2.0 ** (-16)
            range -(2.0 ** 47) ..
@@ -337,7 +338,7 @@ begin
          end if;
 
          loop
-            exit when not EF.Read (Item);
+            exit when EF.Read (Item) /= OK;
 
             if EF.Events.Absolute_Axes then
                Ada.Text_IO.Put (Item.Time'Image);

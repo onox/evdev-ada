@@ -21,7 +21,7 @@ private with Ada.Unchecked_Conversion;
 private package Event_Device.Input_Dev is
    pragma Pure;
 
-   type Error_Kind is (Device, End_Of_File, Data);
+   type Error_Kind is (Device, End_Of_File, Data, Would_Block);
 
    type Result (Is_Success : Boolean := False) is record
       case Is_Success is
@@ -75,7 +75,7 @@ private package Event_Device.Input_Dev is
      (FD    : File_Descriptor;
       Event : Input_Dev.Input_Event) return Result;
 
-   function Open (File_Path : String) return Result;
+   function Open (File_Path : String; Blocking : Boolean) return Result;
 
    function Close (FD : File_Descriptor) return Result;
 

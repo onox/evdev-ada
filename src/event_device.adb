@@ -679,8 +679,12 @@ package body Event_Device is
    function Is_Open (Object : Input_Device) return Boolean is
      (Object.Open);
 
-   function Open (Object : in out Input_Device; File_Name : String) return Boolean is
-      Result : constant Input_Dev.Result := Input_Dev.Open (File_Name);
+   function Open
+     (Object    : in out Input_Device;
+      File_Name : String;
+      Blocking  : Boolean := True) return Boolean
+   is
+      Result : constant Input_Dev.Result := Input_Dev.Open (File_Name, Blocking => Blocking);
    begin
       if Result.Is_Success then
          Object.FD := Result.FD;
@@ -705,7 +709,7 @@ package body Event_Device is
 
    function Read
      (Object : Input_Device;
-      Value  : out State) return Boolean
+      Value  : out State) return Read_Result
    is
       use Event_Device.Input_Dev;
       use type Interfaces.C.unsigned_short;
@@ -725,13 +729,21 @@ package body Event_Device is
       --  Convert to Absolute_Axis_Info_Kind first before converting to
       --  Absolute_Axis_Kind, because the former has a representation clause
 
-      Event : Input_Event;
+      Event  : Input_Event;
+      Result : Input_Dev.Result;
+
       Has_Dropped : Boolean := False;
    begin
       loop
-         if not Input_Dev.Read (Object.FD, Event).Is_Success then
-            Value := (others => <>);
-            return False;
+         Result := Input_Dev.Read (Object.FD, Event);
+
+         if not Result.Is_Success then
+            if Result.Error = Would_Block then
+               return Would_Block;
+            else
+               Value := (others => <>);
+               return Error;
+            end if;
          end if;
 
          case Event.Event is
@@ -779,7 +791,7 @@ package body Event_Device is
          end case;
       end loop;
 
-      return True;
+      return OK;
    end Read;
 
 end Event_Device;

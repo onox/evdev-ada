@@ -3,6 +3,8 @@ project Evdev is
    for Library_Name use "evdev-ada";
    for Library_Version use "1.0.1";
 
+   for Languages use ("ada", "c");
+
    for Create_Missing_dirs use "True";
 
    for Source_Dirs use ("src");
