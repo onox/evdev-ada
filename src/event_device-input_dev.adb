@@ -100,7 +100,6 @@ package body Event_Device.Input_Dev is
           (File_Descriptor => Interfaces.C.int (FD),
            Buffer          => Event,
            Count           => Count);
-      pragma Assert (Bytes_Read >= -1);
 
       case Bytes_Read is
          when Signed_Size_Type'First .. -1 =>
@@ -128,7 +127,6 @@ package body Event_Device.Input_Dev is
           (File_Descriptor => Interfaces.C.int (FD),
            Buffer          => Event,
            Count           => Count);
-      pragma Assert (Bytes_Written >= -1);
 
       case Bytes_Written is
          when Signed_Size_Type'First .. -1 =>
