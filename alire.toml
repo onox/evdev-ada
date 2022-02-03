@@ -12,7 +12,8 @@ maintainers-logins = ["onox"]
 project-files = ["evdev.gpr", "evdev_info.gpr"]
 executables = ["evdev-ada"]
 
-configuration.disabled = true
+[configuration]
+disabled = true
 
 [available.'case(os)']
 linux = true
