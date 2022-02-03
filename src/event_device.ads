@@ -59,8 +59,9 @@ package Event_Device is
 
    type Synchronization_Kind is (Report, Config, MT_Report, Dropped);
 
-   type Key_Info_Kind is
-     (Button_South,
+   type Key_Kind is
+     (Key_Unknown,
+      Button_South,
       Button_East,
       Button_North,
       Button_West,
@@ -74,7 +75,16 @@ package Event_Device is
       Button_Thumb_Left,
       Button_Thumb_Right);
 
-   type Key_Kind is new Key_Info_Kind;
+   type Key_Code is new Unsigned_16 range 0 .. 767;
+   --  Maximum equal to KEY_MAX in /usr/include/linux/input-event-codes.h
+
+   function To_Code (Kind : Key_Kind) return Key_Code;
+   --  Return the key code of the given enum value
+
+   function To_Key (Code : Key_Code) return Key_Kind;
+   --  Return the enum value that belongs to the given key code or
+   --  return Key_Unknown if the corresponding enum value is missing
+   --  in the type definition
 
    type Relative_Axis_Info_Kind is
      (X,
@@ -186,7 +196,9 @@ package Event_Device is
    type Synchronization_Features is array (Synchronization_Kind) of Boolean
      with Component_Size => 1;
 
-   type Key_Features is array (Key_Kind) of Boolean
+   type Key_Code_Index is range 0 .. Key_Code'Last;
+
+   type Key_Features is array (Key_Code_Index) of Boolean
      with Component_Size => 1;
 
    type Relative_Axis_Features is array (Relative_Axis_Kind) of Boolean
@@ -258,7 +270,7 @@ package Event_Device is
 
    type Key_State is (Released, Pressed);
 
-   type Key_Values is array (Key_Kind) of Key_State;
+   type Key_Values is array (Key_Code_Index) of Key_State;
 
    type Relative_Axis_Values is array (Relative_Axis_Kind) of Integer;
    type Absolute_Axis_Values is array (Absolute_Axis_Kind) of Integer;
@@ -449,8 +461,9 @@ private
    --  Representation clause for the *_Info_Kind types are needed
    --  because of holes in the representation values
 
-   for Key_Info_Kind use
-     (Button_South           => 16#130#,
+   for Key_Kind use
+     (Key_Unknown            => 240,
+      Button_South           => 16#130#,
       Button_East            => 16#131#,
       Button_North           => 16#133#,
       Button_West            => 16#134#,
@@ -463,9 +476,7 @@ private
       Button_Mode            => 16#13C#,
       Button_Thumb_Left      => 16#13D#,
       Button_Thumb_Right     => 16#13E#);
-   for Key_Info_Kind'Size use 16;
-
-   for Key_Kind'Size use Key_Info_Kind'Size;
+   for Key_Kind'Size use Key_Code'Size;
 
    for Relative_Axis_Info_Kind use
      (X                         => 16#00#,
