@@ -88,9 +88,19 @@ begin
          declare
             Features : constant Event_Device.Key_Features := EF.Features;
          begin
-            for K in Event_Device.Key_Kind'Range loop
-               if Features (K) then
-                  Ada.Text_IO.Put_Line ("    " & K'Image);
+            for Code in Event_Device.Key_Code loop
+               if Features (Event_Device.Key_Code_Index (Code)) then
+                  declare
+                     Kind : constant Event_Device.Key_Kind := Event_Device.To_Key (Code);
+
+                     use all type Event_Device.Key_Kind;
+                  begin
+                     if Kind /= Key_Unknown then
+                        Ada.Text_IO.Put_Line ("    " & Kind'Image);
+                     else
+                        Ada.Text_IO.Put_Line ("    Unknown key code " & Code'Image);
+                     end if;
+                  end;
                end if;
             end loop;
          end;
@@ -226,7 +236,7 @@ begin
       begin
          if Pressed_Keys then
             for K in Event_Device.Key_Kind'Range loop
-               if Key_Statuses (K) then
+               if Key_Statuses (Event_Device.Key_Code_Index (Event_Device.To_Code (K))) then
                   Ada.Text_IO.Put (" " & K'Image);
                end if;
             end loop;
@@ -368,7 +378,9 @@ begin
             begin
                if Pressed_Keys then
                   for K in Event_Device.Key_Kind'Range loop
-                     if Item.Keys (K) = Pressed then
+                     if
+                       Item.Keys (Event_Device.Key_Code_Index (Event_Device.To_Code (K))) = Pressed
+                     then
                         Ada.Text_IO.Put (" " & K'Image);
                      end if;
                   end loop;
