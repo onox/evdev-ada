@@ -19,7 +19,7 @@ with System;
 private with Ada.Unchecked_Conversion;
 
 private package Event_Device.Input_Dev is
-   pragma Pure;
+   pragma Preelaborate;
 
    type Error_Kind is (Device, End_Of_File, Data, Would_Block);
 

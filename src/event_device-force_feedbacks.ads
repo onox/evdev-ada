@@ -19,7 +19,7 @@ with Interfaces.C;
 with System;
 
 package Event_Device.Force_Feedbacks is
-   pragma Pure;
+   pragma Preelaborate;
 
    use Interfaces.C;
 

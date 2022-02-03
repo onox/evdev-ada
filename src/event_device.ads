@@ -19,7 +19,7 @@ with Interfaces.C;
 private with Ada.Finalization;
 
 package Event_Device is
-   pragma Pure;
+   pragma Preelaborate;
 
    type Unsigned_8 is mod 2 ** 8
      with Size => 8;
