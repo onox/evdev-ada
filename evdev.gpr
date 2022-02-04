@@ -3,7 +3,7 @@ with "evdev_config";
 project Evdev is
 
    for Library_Name use "evdev-ada";
-   for Library_Version use "1.0.1";
+   for Library_Version use "2.0.0";
 
    for Languages use ("ada", "c");
 
