@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-latest]
+        os: [ubuntu-latest]
         compiler: [fsf, community]
     steps:
     - uses: actions/checkout@v2
@@ -30,7 +30,9 @@ jobs:
         target: native
 
     - name: Install Alire
-      uses: alire-project/setup-alire@latest-devel
+      uses: alire-project/setup-alire@v1
+      with:
+        toolchain: "gnat_external"
 
     - name: Build crates
       run: make
