@@ -1,10 +1,9 @@
+with "evdev_config";
 with "evdev";
 
 project Evdev_Info is
 
    for Languages use ("Ada");
-
-   for Create_Missing_Dirs use "True";
 
    for Object_Dir  use "build/obj";
    for Exec_Dir use "build/bin";
@@ -25,7 +24,7 @@ project Evdev_Info is
    package Binder renames Evdev.Binder;
 
    package Linker is
-      case Evdev.Build_Mode is
+      case Evdev_Config.Build_Mode is
          when "coverage" =>
             for Switches ("ada") use ("-lgcov", "-fprofile-arcs");
          when "profiling" =>
