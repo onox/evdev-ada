@@ -578,7 +578,7 @@ package body Event_Device is
          Code  => FF_Gain_Code,
          Value => Interfaces.C.int (16#FF_FF.00# * Value));
 
-      Result : constant Input_Dev.Result := Input_Dev.Write (Object.FD, Event);
+      Result_Unused : constant Input_Dev.Result := Input_Dev.Write (Object.FD, Event);
    begin
       --  Ignore any possible errors. If the device has been disconnected
       --  then playing a force-feedback effect will fail, which can be
@@ -598,7 +598,7 @@ package body Event_Device is
          Code  => FF_Auto_Center_Code,
          Value => Interfaces.C.int (16#FF_FF.00# * Value));
 
-      Result : constant Input_Dev.Result := Input_Dev.Write (Object.FD, Event);
+      Result_Unused : constant Input_Dev.Result := Input_Dev.Write (Object.FD, Event);
    begin
       --  Ignore any possible errors. If the device has been disconnected
       --  then playing a force-feedback effect will fail, which can be

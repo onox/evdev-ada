@@ -28,8 +28,8 @@ abstract project Evdev_Config is
            ("-gnatwa",  -- all warnings
             "-gnatVa",  -- all validity checks
             "-gnatf",   -- full errors
-            "-gnatwe", -- warnings as errors
-            "-gnatwfl.s");
+--            "-gnatwe", -- warnings as errors
+            "-gnatwl.s");
       when "warnings" =>
          compile_checks_switches :=
            ("-gnatwa",  -- all warnings
