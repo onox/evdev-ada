@@ -14,7 +14,6 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 
-with Ada.IO_Exceptions;
 with Ada.Characters.Latin_1;
 
 package body Event_Device.Input_Dev is
