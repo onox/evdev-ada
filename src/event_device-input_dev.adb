@@ -15,6 +15,7 @@
 --  limitations under the License.
 
 with Ada.Characters.Latin_1;
+with Ada.Unchecked_Conversion;
 
 package body Event_Device.Input_Dev is
 

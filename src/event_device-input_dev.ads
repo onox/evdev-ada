@@ -16,8 +16,6 @@
 
 with System;
 
-private with Ada.Unchecked_Conversion;
-
 private package Event_Device.Input_Dev is
    pragma Preelaborate;
 
